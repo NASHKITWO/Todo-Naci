@@ -1,0 +1,51 @@
+name: android
+
+# APK dibuat otomatis: tab Actions > "android" > Run workflow, lalu unduh artefak "todo-apk".
+on:
+  workflow_dispatch:
+    inputs:
+      widget:
+        description: "Sertakan widget layar utama (matikan bila build gagal di bagian widget)"
+        type: boolean
+        default: true
+  push:
+    tags: ["v*"]
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Pasang dependensi
+        run: npm install --no-audit --no-fund
+      - name: Uji logika dan alat build
+        run: npm test
+      - name: Susun www
+        run: node build.js
+      - name: Buat proyek Android
+        run: npx cap add android
+      - name: Sesuaikan izin, ikon, splash, widget, versi
+        env:
+          WIDGET: ${{ github.event_name != 'workflow_dispatch' || inputs.widget }}
+        run: |
+          FLAGS=""
+          if [ "$WIDGET" != "true" ]; then FLAGS="--no-widget"; fi
+          node tools/patch_android.js android "$(node -p "require('./package.json').version")" $FLAGS
+      - name: Sinkronkan web ke Android
+        run: npx cap sync android
+      - name: Bangun APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: todo-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

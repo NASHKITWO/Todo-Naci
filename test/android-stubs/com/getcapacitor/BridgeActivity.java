@@ -1,0 +1,1 @@
+package com.getcapacitor; public class BridgeActivity { protected void onCreate(android.os.Bundle b){} public void onCreate2(){} public void registerPlugin(Class<?> c){} protected void onNewIntent(android.content.Intent i){} public android.content.Intent getIntent(){return null;} }

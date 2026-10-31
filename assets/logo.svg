@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Tuntas Harian">
+<rect width="1024" height="1024" rx="225" fill="#1b2f66"/>
+<g fill="none" stroke="#fff" stroke-width="35"><circle cx="512" cy="512" r="194.6"/><g stroke-width="36" stroke-linecap="butt"><line x1="752.6" y1="512.0" x2="805.9" y2="512.0"/><line x1="682.2" y1="682.2" x2="719.8" y2="719.8"/><line x1="512.0" y1="752.6" x2="512.0" y2="805.9"/><line x1="341.8" y1="682.2" x2="304.2" y2="719.8"/><line x1="271.4" y1="512.0" x2="218.1" y2="512.0"/><line x1="341.8" y1="341.8" x2="304.2" y2="304.2"/><line x1="512.0" y1="271.4" x2="512.0" y2="218.1"/><line x1="682.2" y1="341.8" x2="719.8" y2="304.2"/></g></g>
+<polyline points="435,527 492,589 599,445" fill="none" stroke="#ff6f59" stroke-width="66" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,11 @@
+/* Tambahan khusus aplikasi mobile. */
+body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+#backup-text { width: 100%; resize: vertical; font-family: ui-monospace, monospace; font-size: 12px; }
+.login-err.ok { color: #067647; }
+:root[data-theme="dark"] .login-err.ok { color: #75e0a7; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .login-err.ok { color: #75e0a7; } }
+
+/* Panel Cadangan & sinkron bisa lebih tinggi dari layar: gulir di dalam panel, jangan terpotong. */
+.login { display: block; overflow-y: auto; overscroll-behavior: contain; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); }
+.login[hidden] { display: none; }
+.login-card { margin: 0 auto; }
