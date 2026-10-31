@@ -1,0 +1,1 @@
+package android.appwidget; public class AppWidgetManager { public static AppWidgetManager getInstance(android.content.Context c){return new AppWidgetManager();} public int[] getAppWidgetIds(android.content.ComponentName n){return new int[]{1};} public void updateAppWidget(int id, android.widget.RemoteViews v){} }

@@ -1,0 +1,3 @@
+package android.widget; public class RemoteViews { public static java.util.Map<Integer,String> text=new java.util.TreeMap<>(); public static java.util.Map<Integer,Integer> vis=new java.util.TreeMap<>(); public static java.util.Map<Integer,String> desc=new java.util.TreeMap<>();
+ public RemoteViews(String p,int l){text.clear();vis.clear();desc.clear();android.app.PendingIntent.made.clear();} public void setTextViewText(int id,CharSequence t){text.put(id,t.toString());} public void setViewVisibility(int id,int v){vis.put(id,v);}
+ public void setContentDescription(int id,CharSequence c){desc.put(id,c.toString());} public void setOnClickPendingIntent(int id, android.app.PendingIntent p){} }

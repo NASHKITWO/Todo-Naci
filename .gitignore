@@ -3,3 +3,7 @@ www/
 android/
 *.apk
 .DS_Store
+
+# Android API stubs used by the Java widget test (not the generated Android project).
+!test/android-stubs/android/
+!test/android-stubs/android/**
