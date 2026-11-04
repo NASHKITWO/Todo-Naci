@@ -1,0 +1,1 @@
+package android.appwidget; import android.content.Context; import android.content.Intent; public class AppWidgetProvider { public void onUpdate(Context c,AppWidgetManager m,int[] ids){} public void onReceive(Context c,Intent i){} }

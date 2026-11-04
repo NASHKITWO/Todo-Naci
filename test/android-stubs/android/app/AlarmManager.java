@@ -1,0 +1,1 @@
+package android.app; import java.util.*; public class AlarmManager { public static final List<String> cancelled=new ArrayList<>(); public void cancel(PendingIntent p){String s=p.describe(); cancelled.add(s.startsWith("broadcast#")?s.substring("broadcast#".length()):s);} }
