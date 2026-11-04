@@ -1,0 +1,2 @@
+Carlito (badan teks): SIL Open Font License 1.1, © Łukasz Dziedzic / Google. Subset Latin.
+Tuntas Serif (judul): turunan Latin Modern Roman Demi 10, © 2003, 2009 B. Jackowski dan J. M. Nowacki (kelompok pengguna TeX), GUST Font License (http://tug.org/fonts/licenses/GUST-FONT-LICENSE.txt). Subset Latin dan diganti namanya karena dimodifikasi.

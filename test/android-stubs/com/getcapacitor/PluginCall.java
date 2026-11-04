@@ -1,0 +1,1 @@
+package com.getcapacitor; public class PluginCall { public String getString(String k,String d){return d;} public JSArray getArray(String k){return null;} public Boolean getBoolean(String k,Boolean d){ return flag != null ? flag : d; } public Boolean flag = null; public void resolve(){} public void resolve(JSObject o){} }

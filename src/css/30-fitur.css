@@ -1,0 +1,83 @@
+/* =====================================================================
+   Fitur lanjutan: subtugas inline, kalender, filter, wawasan, pilih banyak
+   ===================================================================== */
+
+/* ---- subtugas inline ---- */
+.mini { height: 4px; margin-top: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; max-width: 220px; }
+.mini span { display: block; height: 100%; border-radius: 99px; background: var(--ok); transition: width .45s cubic-bezier(.2,.8,.2,1); }
+.chip.subtoggle { cursor: pointer; }
+.chip.subtoggle[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent); }
+.chip.subtoggle svg { transition: transform .2s; }
+.chip.subtoggle[aria-expanded="true"] svg { transform: rotate(90deg); }
+.subs-inline { margin-top: 10px; padding-left: 2px; border-left: 2px solid var(--border); display: grid; gap: 2px; animation: rise .2s ease both; cursor: default; }
+.isub { display: flex; align-items: center; gap: 8px; padding: 3px 0 3px 10px; }
+.isub .st { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 14px; }
+.isub.done .st { color: var(--muted); text-decoration: line-through; }
+.isub-add input { width: 100%; border: 0; background: transparent; padding: 6px 10px; outline: none; font-size: 14px; color: var(--text); border-radius: 8px; }
+.isub-add input:focus { background: var(--surface-2); }
+.isub-add input::placeholder { color: var(--muted); }
+
+/* ---- kalender mingguan ---- */
+.week { margin: 0 0 16px;      animation: rise .25s ease both; }
+.week-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.week-head h3 { margin: 0; flex: 1; font-size: 15px; }
+.week-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.wday { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0 6px; border: 1px solid transparent;  background: transparent; color: var(--text); transition: background .15s, border-color .15s, transform .1s; }
+.wday:hover { background: var(--surface-2); }
+.wday:active { transform: scale(.96); }
+.wday .dn {  color: var(--muted);   }
+.wday .dd { font-size: 17px; font-weight: 650; }
+.wday .dots { display: flex; gap: 3px; min-height: 7px; }
+.wday .dots i { width: 6px; height: 6px; border-radius: 50%;  }
+.wday .dots i.p1 { background: var(--p1); } .wday .dots i.p2 { background: var(--p2); } .wday .dots i.p3 { background: var(--p3); }
+.wday .more { font-size: 10px; color: var(--muted); line-height: 1; }
+
+/* ---- filter + urutan ---- */
+.filters { display: flex;     scrollbar-width: none;  }
+.filters::-webkit-scrollbar { display: none; }
+.filters .sp { flex: 1; }
+.filters select { flex: none;    padding: 5px 10px; font-size: 13px; }
+
+/* ---- wawasan ---- */
+.insights { display: grid; gap: 14px; animation: rise .3s ease both; }
+.kpis {  grid-template-columns: repeat(4, 1fr); gap: 10px; }
+
+.kpi .v {   letter-spacing: -.02em; }
+
+.panel h3 { margin: 0 0 12px; font-size: 14px; }
+.vbars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; height: 130px; }
+.vcol { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; gap: 4px; }
+.vcol .bar { width: 100%;  min-height: 4px;    transform-origin: bottom; animation: grow .6s cubic-bezier(.2,.8,.2,1) both; }
+.vcol .bar.zero {  opacity: 1; }
+.vcol .n { font-size: 12px; font-weight: 650; }
+.vcol .d { font-size: 11px; color: var(--muted); }
+@keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.hrow { display: grid; grid-template-columns: 96px 1fr 44px; align-items: center; gap: 10px; margin: 8px 0; font-size: 13px; }
+.hrow .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hrow .track { height: 10px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.hrow .fill { display: block; height: 100%;  background: var(--accent); transition: width .6s cubic-bezier(.2,.8,.2,1); }
+.hrow .fill.p1 { background: var(--p1); } .hrow .fill.p2 { background: var(--p2); } .hrow .fill.p3 { background: var(--p3); }
+.hrow .val { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.insight-note { margin: 0; color: var(--muted); font-size: 13px; }
+
+/* ---- pilih banyak ---- */
+.row.picked .row-body { background: var(--accent-soft); }
+.select-mode .row .check { pointer-events: none; opacity: .5; }
+.row .pick { display: none; flex: none; width: 22px; height: 22px; margin-top: 2px; border-radius: 50%; border: 2px solid var(--border); place-items: center; color: transparent; }
+.select-mode .row .pick { display: grid; }
+.row.picked .pick { background: var(--accent); border-color: var(--accent); color: var(--on-accent); animation: pop .25s ease; }
+.bulkbar { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 55; display: flex; align-items: center; gap: 8px; padding: 8px 10px 8px 16px;  background: var(--text); color: var(--bg); box-shadow: 0 12px 34px rgba(0,0,0,.35); animation: rise .2s ease both; max-width: calc(100vw - 24px); }
+.bulkbar .cnt { font-weight: 650; white-space: nowrap; margin-right: 4px; }
+.bulkbar button { border: 0;  padding: 7px 12px; background: rgba(127,127,127,.25); color: inherit; font-weight: 600; white-space: nowrap; }
+.bulkbar button:hover { background: rgba(127,127,127,.4); }
+.bulkbar button.danger { background: var(--p1); color: #fff; }
+#select-btn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+
+@media (max-width: 860px) {
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .hrow { grid-template-columns: 78px 1fr 40px; }
+  .bulkbar { gap: 6px; padding-left: 12px; }
+  .bulkbar button { padding: 7px 9px; }
+}
+
+@media (max-width: 640px) {}

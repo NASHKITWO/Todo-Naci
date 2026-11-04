@@ -1,0 +1,14 @@
+{
+  "appId": "io.github.nashkitwo.todo",
+  "appName": "Tuntas Harian",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "iconColor": "#1B2F66"
+    }
+  }
+}

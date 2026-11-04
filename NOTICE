@@ -1,0 +1,31 @@
+Tuntas Harian
+Hak Cipta (c) 2026 Muhammad Ikhsan <ican3192@gmail.com>
+Teknik Informatika, Universitas Pamulang
+
+Program ini adalah perangkat lunak bebas: Anda dapat menyebarluaskan dan/atau
+memodifikasinya di bawah ketentuan GNU General Public License versi 3 atau
+(sesuai pilihan Anda) versi yang lebih baru, sebagaimana diterbitkan oleh Free
+Software Foundation. Teks lengkap ada di berkas LICENSE.
+
+Program ini disebarluaskan dengan harapan bermanfaat, TETAPI TANPA JAMINAN APA
+PUN, bahkan tanpa jaminan tersirat tentang KELAYAKAN DIPERDAGANGKAN atau
+KESESUAIAN UNTUK TUJUAN TERTENTU.
+
+Ringkasnya (bukan pengganti teks lisensi):
+  - Anda boleh memakai, mempelajari, mengubah, dan menyebarkan kode ini.
+  - Jika Anda menyebarkan hasil modifikasi atau aplikasi yang memuat kode ini
+    (termasuk APK), kode sumber lengkapnya wajib Anda sediakan dengan GPL-3.0
+    yang sama, dan pemberitahuan hak cipta ini wajib dipertahankan.
+  - Anda tidak boleh menambah pembatasan lain pada penerima kode.
+
+Syarat tambahan (GPL-3.0 pasal 7, pengelolaan nama):
+  Lisensi ini TIDAK memberi hak atas nama "Tuntas Harian", logo, dan ikon
+  aplikasi (assets/). Versi yang dimodifikasi wajib memakai nama dan ikon yang
+  berbeda dan tidak boleh menyiratkan berasal dari, atau didukung oleh,
+  pengembang asli. Versi modifikasi juga harus ditandai jelas sebagai hasil
+  modifikasi.
+
+Komponen pihak ketiga (font, Capacitor, dll.) tetap berada di bawah lisensi
+masing-masing; daftarnya ada di THIRD_PARTY_NOTICES.md.
+
+Pertanyaan lisensi atau izin khusus: ican3192@gmail.com

@@ -1,0 +1,1 @@
+package com.getcapacitor; public class Plugin { public static android.app.Activity activity = new android.app.Activity(); public android.content.Context getContext(){return null;} public android.app.Activity getActivity(){return activity;} }

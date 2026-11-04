@@ -1,0 +1,31 @@
+/* ===== 0.23: kerapian ===== */
+.wday .dn { text-transform: none; letter-spacing: 0; font-size: 12px; }
+.login-card h2:focus, .login-card h2:focus-visible, .welcome h2:focus { outline: none; }
+.empty { margin-top: 36px; text-align: left; padding-left: 14px; border-left: 3px solid var(--margin); }
+.empty svg { width: 26px; height: 26px; opacity: 1; }
+
+.empty h2 { margin: 8px 0 2px; }
+.welcome { border-left: 0; padding-left: 0; }
+.about-foot { text-align: left; margin: 36px 0 12px; font-size: 12.5px; }
+.about-foot .donate { display: inline-flex; margin: 4px 0 0; width: auto; padding: 8px 0; border: 0; background: transparent; justify-content: flex-start; color: var(--accent); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.about-foot a { margin-right: 18px; }
+.about-foot .donate { margin-left: 0; }
+
+/* 0.24: grup, hitungan, kolom teks */
+.group-head { border-bottom: 1px solid var(--rule); }
+.group-head.overdue { border-bottom-color: var(--danger-text); }
+.group-head .n { margin-left: 4px; font-variant-numeric: tabular-nums; }
+.group + .group { margin-top: 18px; }
+#bulk-text, textarea { font-family: var(--sans); line-height: 1.5; }
+/* kunci kelompok "week" bentrok dengan kartu .week di Wawasan: tanpa garis atas */
+.group-head.week { border-top: 0; border-bottom: 1px solid var(--rule); padding: 6px 0; }
+/* 0.24.1: empat tab filter muat di 360–390px */
+@media (max-width: 420px) { .filters .tabs .qchip { padding-left: 9px; padding-right: 9px; font-size: 13px; } .filters .tabs { gap: 0; } }
+
+/* 0.25: dialog sebagai modal sungguhan — tirai di atas aplikasi, kartu bisa digulir */
+.login:not(.lock) { background: rgba(21, 30, 56, .5); }
+.login:not(.lock) .login-card { width: min(460px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; box-shadow: 0 18px 48px rgba(21, 30, 56, .28); }
+.input, textarea.input { font-family: var(--sans); }
+@media (max-width: 560px) { .login:not(.lock) { padding: 10px; } }
+.login-card p { margin: 0; }
+.login-card h3 { margin: 14px 0 0; }

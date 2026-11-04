@@ -1,0 +1,58 @@
+/* ===== 0.22: kurangi kotak, lebih banyak tinta dan kertas =====
+ * Satu hal yang diingat: daftar bergaris dengan margin merah dan cap "terlambat". Sisanya tenang: tanpa kotak di setiap elemen. */
+
+/* Selamat datang: halaman pertama buku, rata kiri, tanpa kartu bernomor. */
+.welcome { max-width: 560px; margin-left: 0; margin-right: auto; padding: 0;  }
+.welcome h2 { font-size: 26px;  }
+.welcome .tips { margin: 16px 0 0; display: block; }
+.welcome .tips li { padding: 12px 0 12px 16px; background: transparent; border: 0; border-bottom: 1px solid var(--rule); border-left: 3px solid var(--margin); border-radius: 0; margin: 0; }
+.welcome .tips li::before { content: none; }
+.welcome .empty-actions { justify-content: flex-start; }
+
+/* Ringkasan di Wawasan: buku besar dengan titik-titik penuntun, bukan empat kotak angka. */
+.kpis { display: block; }
+.kpi { display: flex; align-items: baseline; gap: 8px; padding: 9px 0; background: transparent; border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; box-shadow: none; }
+.kpi .v { order: 3; font-size: 22px; font-variant-numeric: tabular-nums; }
+.kpi .l { order: 1; font-size: 15px; color: var(--text); }
+.kpi::after { content: ""; order: 2; flex: 1; align-self: flex-end; margin-bottom: 5px; border-bottom: 2px dotted var(--rule); }
+
+/* Batang mingguan: goresan tinta berarsir. */
+.vcol .bar { max-width: 16px; border-radius: 1px; opacity: 1; background: repeating-linear-gradient(135deg, var(--accent) 0 2px, transparent 2px 5px); border: 1.5px solid var(--accent); }
+.vcol .bar.zero { background: transparent; border: 0; border-bottom: 2px solid var(--rule); min-height: 2px; height: 2px !important; }
+
+/* Kalender hari tuntas: cap hijau untuk hari tuntas, bukan petak terisi. */
+.tcal-head span, .tc { justify-self: center; }
+.tcal-head, .tcal { gap: 6px 4px; }
+.tc { width: 100%; max-width: 40px; border-radius: 3px; border: 1px solid transparent; color: var(--muted); }
+.tc.none { border-bottom: 1px solid var(--rule); border-radius: 0; }
+.tc.part { background: transparent; border: 1px dashed var(--muted); color: var(--text); }
+.tc.full { background: transparent; border: 2px solid var(--ok); color: var(--ok-text); font-weight: 700; transform: rotate(-4deg); }
+.tc.future { border: 0; opacity: .45; }
+.tc.today { outline: 0; box-shadow: 0 3px 0 var(--margin); }
+
+/* Chip di baris: tinta biasa, tanpa kotak. Hanya "terlambat" (cap) dan "hari ini" (stabilo) yang menonjol. */
+.row .chip:not(.overdue):not(.late):not(.today):not(.project):not(.subtoggle) { border-color: transparent; padding-left: 0; padding-right: 4px; }
+.row .chip.today { border-color: transparent; background: linear-gradient(transparent 55%, var(--warn-soft) 55%); padding: 0 4px; }
+.row .chip.project { border-radius: 2px; }
+
+/* Filter: tab indeks buku yang duduk di garis. */
+.filters { gap: 2px; margin: 0 0 14px; padding: 0; border-bottom: 1px solid var(--rule); align-items: flex-end; }
+.filters .qchip { border: 1px solid transparent; border-bottom: 0; border-radius: 6px 6px 0 0; background: transparent; color: var(--muted); padding: 7px 12px 6px; margin-bottom: -1px; font-weight: 600; }
+.filters .qchip:hover { color: var(--text); border-color: var(--rule); }
+.filters .qchip.on { background: var(--bg); border-color: var(--rule); border-bottom: 1px solid var(--bg); color: var(--text); font-weight: 700; box-shadow: inset 0 3px 0 var(--margin); }
+.filters select { border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; background: transparent; margin-bottom: 2px; }
+
+/* Sidebar: gambaran 7 hari sebagai goresan tipis, bukan tujuh petak putih. */
+.sidebar .bars { gap: 9px; }
+.sidebar .bars > i { flex: 0 0 4px; margin: 0 auto; border-radius: 0; }
+
+/* Filter: tab bergulir sendiri, urutan tetap terlihat; di layar sempit urutan jadi ikon. */
+.filters { overflow: visible; }
+.filters .tabs { display: flex; gap: 2px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; align-items: flex-end; }
+.filters .tabs::-webkit-scrollbar { display: none; }
+.filters .tabs .qchip { flex: none; min-height: 45px; }
+.filters select option { color: var(--text); background: var(--surface); }
+@media (max-width: 560px) {
+  .filters select { flex: none; width: 44px; min-width: 44px;  padding: 6px 0; color: transparent; text-shadow: none;  -webkit-appearance: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2355637c' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 7h16M7 12h10M10 17h4'/%3E%3C/svg%3E") center / 20px no-repeat; }
+}
