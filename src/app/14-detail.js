@@ -123,7 +123,7 @@ function buildDrawer(t) {
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Tutup panel', onclick: closeDrawer }, icon('x', 18))),
     titleInput,
     field('Prioritas', prio),
-    h('div', { class: 'field' }, h('label', { for: 'f-deadline' }, 'Batas waktu'), h('div', { class: 'det-row' }, dateInput, timeInput), dateReadout, quickDates),
+    h('div', { class: 'field' }, h('label', { for: 'f-deadline' }, 'Batas waktu'), h('div', { class: 'det-row' }, pickBox(dateInput, 'date'), pickBox(timeInput, 'time')), dateReadout, quickDates),
     h('details', { class: 'snooze-box', open: false },
       h('summary', {}, icon('clock', 14), 'Jadwalkan ulang'),
       h('div', { class: 'snooze', id: 'f-snooze' },
@@ -153,6 +153,7 @@ function syncDrawer() {
   if (idle($('#f-deadline'))) $('#f-deadline').value = t.deadline || '';
   if (idle($('#f-time'))) $('#f-time').value = t.due_time || '';
   $('#f-time').disabled = !t.deadline;
+  refreshPicks();
   if ($('#f-readout')) $('#f-readout').textContent = t.deadline ? fmtDate(t.deadline) + (t.due_time ? ', ' + t.due_time : '') : T('Belum ada tanggal');
   if (idle($('#f-project'))) $('#f-project').value = t.project || '';
   if (idle($('#f-tags'))) $('#f-tags').value = t.tags.join(', ');

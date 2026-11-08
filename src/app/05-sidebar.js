@@ -139,11 +139,15 @@ function renderHeader() {
 /* Pengingat butuh izin notifikasi. Bila ditolak dan ada tugas berjam, beri tahu cara mengaktifkannya. */
 function renderNotifBanner() {
   const b = $('#notif-banner');
-  const show = window.__notifDenied === true && !ui.notifDismissed && state.tasks.some(t => !t.done && t.deadline && t.due_time);
+  const timed = state.tasks.some(t => !t.done && t.deadline && t.due_time);
+  const denied = window.__notifDenied === true, exact = !denied && window.__exactDenied === true;
+  const show = (denied || exact) && !ui.notifDismissed && timed;
   b.hidden = !show;
   if (!show) return;
   b.replaceChildren(
-    h('span', {}, 'Notifikasi dimatikan, jadi pengingat tidak akan berbunyi. Aktifkan di Setelan > Aplikasi > Tuntas Harian > Notifikasi.'),
+    h('span', {}, denied ? 'Notifikasi dimatikan, jadi pengingat tidak akan berbunyi. Aktifkan di Setelan > Aplikasi > Tuntas Harian > Notifikasi.'
+      : 'Izin "Alarm & pengingat" dimatikan, jadi pengingat bisa datang terlambat.'),
+    exact ? h('button', { class: 'btn small', type: 'button', id: 'exact-open', onclick: () => window.todoOpenExactSettings && window.todoOpenExactSettings() }, 'Buka pengaturan') : null,
     h('button', { class: 'btn small', type: 'button', id: 'notif-dismiss', onclick: () => { ui.notifDismissed = true; renderNotifBanner(); } }, 'Tutup'));
 }
 window.addEventListener('todo-notif-state', renderNotifBanner);

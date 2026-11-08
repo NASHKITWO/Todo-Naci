@@ -246,6 +246,7 @@ function emptyState(key, text) {
   const brandNew = !state.tasks.length && ['today', 'all', 'upcoming', 'calendar'].indexOf(key) !== -1;
   if (brandNew) {
     return h('div', { class: 'empty welcome', id: 'welcome' },
+      scene(false),
       h('h2', {}, 'Selamat datang di Tuntas Harian'),
       h('p', {}, 'Mulai dari yang kecil.'),
       h('ul', { class: 'tips' },
@@ -260,7 +261,7 @@ function emptyState(key, text) {
   const acts = [];
   if (key === 'today' || key === 'all' || key === 'upcoming' || key === 'calendar') acts.push(h('button', { class: 'btn primary', type: 'button', id: 'empty-write', onclick: focusQuick }, 'Tulis tugas'));
   if (key === 'today' && state.tasks.some(t => !t.done && t.parent_id === null)) acts.push(h('button', { class: 'btn', type: 'button', id: 'empty-upcoming', onclick: () => selectView('upcoming') }, 'Lihat tugas mendatang'));
-  return h('div', { class: 'empty' }, icon('tuntas', 40), h('h2', {}, text[0]), h('p', {}, text[1]), acts.length ? h('div', { class: 'empty-actions' }, acts) : null);
+  return h('div', { class: 'empty' }, scene(key === 'today' && state.tasks.length > 0), h('h2', {}, text[0]), h('p', {}, text[1]), acts.length ? h('div', { class: 'empty-actions' }, acts) : null);
 }
 function renderListInner(root) {
   root.replaceChildren();

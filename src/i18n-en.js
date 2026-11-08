@@ -308,7 +308,7 @@
       'Applies to tasks that have a time. Each task can have its own reminder in its detail panel. These settings sync along with your tasks when sync is on.',
     'Ringkasan malam memberi tahu tugas yang belum tuntas, dengan tombol "Pindah ke besok".':
       'The evening summary lists unfinished tasks, with a "Move to tomorrow" button.',
-    'Pindah ke besok': 'Move to tomorrow', 'Ada tugas yang perlu dilihat.': 'There are tasks to check.', 'Besok jatuh tempo': 'Due tomorrow', 'Jatuh tempo sekarang': 'Due now',
+    'Pindah ke besok': 'Move to tomorrow', 'Pilih tanggal': 'Pick a date', 'Pilih jam': 'Pick a time', 'Izin "Alarm & pengingat" dimatikan, jadi pengingat bisa datang terlambat.': 'The "Alarms & reminders" permission is off, so reminders may arrive late.', 'Buka pengaturan': 'Open settings', 'Ada tugas yang perlu dilihat.': 'There are tasks to check.', 'Besok jatuh tempo': 'Due tomorrow', 'Jatuh tempo sekarang': 'Due now',
     'Dalam {n} menit': 'In {n} minutes', '{n} tugas belum tuntas: {names}': '{n} tasks not done yet: {names}',
   });
   add({

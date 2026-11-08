@@ -58,6 +58,16 @@
   let permissionAsked = false;
   let timer = null;
 
+  /* Android 12/12L: izin "Alarm & pengingat" bisa dicabut; tanpa itu alarm jatuh ke mode tidak presisi dan terlambat. */
+  function exactState(denied) {
+    if (window.__exactDenied === denied) return;
+    window.__exactDenied = denied;
+    window.dispatchEvent(new Event('todo-notif-state'));
+  }
+  window.todoOpenExactSettings = async () => {
+    const LN = plugin('LocalNotifications');
+    try { if (LN && typeof LN.changeExactNotificationSetting === 'function') await LN.changeExactNotificationSetting(); } catch (e) { /* abaikan */ }
+  };
   /* Beri tahu tampilan bila izin notifikasi ditolak (pengingat tidak akan berbunyi). */
   function notifState(denied) {
     if (window.__notifDenied === denied) return;
@@ -246,6 +256,9 @@
       const allowed = await ensurePermission(LN);
       notifState(!allowed);
       if (!allowed) return;
+      try {
+        if (typeof LN.checkExactNotificationSetting === 'function') { const ex = await LN.checkExactNotificationSetting(); exactState(!!ex && ex.exact_alarm === 'denied'); }
+      } catch (e) { /* plugin lama / bukan Android 12+: abaikan */ }
       const pending = await LN.getPending();
       if (pending.notifications && pending.notifications.length) {
         await LN.cancel({ notifications: pending.notifications.map(n => ({ id: n.id })) });
@@ -254,6 +267,7 @@
       const rp = remindPrefs();
       const plan = core.planReminders(store.upcoming(), new Date(), {
         lead: rp.lead < 0 ? 30 : rp.lead,
+        days: 45, limit: 150, // jangkauan lebih panjang: pengingat tetap ada walau aplikasi lama tidak dibuka (batas sistem Android 500 alarm)
         leadFor: t => { const u = uidOfId(t.id), v = u ? rp.per[u] : undefined; return LEADS.includes(v) ? v : (rp.lead < 0 ? -1 : undefined); },
         evening: rp.evening,
       });

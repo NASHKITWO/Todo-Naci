@@ -26,6 +26,8 @@ window.Capacitor = {
     LocalNotifications: {
       checkPermissions: async () => ({display: window.__perm || 'granted'}),
       requestPermissions: async () => ({display: window.__perm || 'granted'}),
+      checkExactNotificationSetting: async () => ({exact_alarm: window.__exact || 'granted'}),
+      changeExactNotificationSetting: async () => { window.__exactOpened = true; },
       getPending: async () => ({notifications: window.__pending.map(id => ({id}))}),
       registerActionTypes: async (o) => { window.__actionTypes = (window.__actionTypes || []).concat(o.types); },
       addListener: async (name, fn) => { (window.__lnListeners = window.__lnListeners || {})[name] = fn; return {remove: async () => {}}; },

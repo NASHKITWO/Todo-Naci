@@ -82,3 +82,45 @@ async function api(method, path, body) {
 const motionOK = () => !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const buzz = ms => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} };
+
+/* Kotak pilih tanggal/jam: tampil sebagai tombol berisi teks terformat ("Kam, 5 Nov", "19:00"); input asli (tak terlihat) menutupi
+ * tombol sehingga ketukan membuka pemilih bawaan sistem. Nilai, label aksesibel, dan acara input tidak berubah. */
+function pickBox(input, kind) {
+  const txt = h('span', { class: 'pick-text' });
+  const box = h('label', { class: 'pick pick-' + kind }, icon(kind === 'date' ? 'calendar' : 'clock', 16), txt, input);
+  box.sync = () => {
+    const v = input.value;
+    let shown = v;
+    if (v && kind === 'date') { try { shown = fmtDate(v); } catch (e) { shown = v; } }
+    txt.textContent = v ? shown : (kind === 'date' ? T('Pilih tanggal') : T('Pilih jam'));
+    box.classList.toggle('blank', !v);
+    box.classList.toggle('off', !!input.disabled);
+  };
+  input.classList.add('pick-input');
+  input.addEventListener('input', box.sync);
+  input.addEventListener('change', box.sync);
+  input.addEventListener('click', () => { try { if (!input.disabled && input.showPicker) input.showPicker(); } catch (e) { /* butuh gestur; abaikan */ } });
+  box.sync();
+  return box;
+}
+function refreshPicks() { document.querySelectorAll('.pick').forEach(b => { if (b.sync) b.sync(); }); }
+
+/* Ilustrasi khas Tuntas Harian: kartu tugas bertumpuk, satu sudah dicentang (cincin-centang = motif merek), dengan percikan. Dekoratif. */
+function scene(done) {
+  const mk = (n, a) => { const e = document.createElementNS(SVG_NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const svg = mk('svg', { viewBox: '0 0 220 150', width: 220, height: 150, class: 'scene', 'aria-hidden': 'true', focusable: 'false' });
+  svg.append(
+    mk('ellipse', { cx: 110, cy: 136, rx: 78, ry: 7, class: 'sc-shadow' }),
+    mk('rect', { x: 44, y: 34, width: 132, height: 38, rx: 12, class: 'sc-card sc-back', transform: 'rotate(-5 110 53)' }),
+    mk('rect', { x: 40, y: 60, width: 140, height: 40, rx: 12, class: 'sc-card sc-mid', transform: 'rotate(3 110 80)' }),
+    mk('rect', { x: 34, y: 86, width: 152, height: 42, rx: 13, class: 'sc-card sc-front' }),
+    mk('circle', { cx: 58, cy: 107, r: 11, class: done === false ? 'sc-ring' : 'sc-ring on' }),
+    mk('path', { d: 'M52.5 107.5l4 4 7-8', class: 'sc-tick' }),
+    mk('rect', { x: 78, y: 98, width: 70, height: 6, rx: 3, class: 'sc-line' }),
+    mk('rect', { x: 78, y: 111, width: 44, height: 6, rx: 3, class: 'sc-line short' }),
+    mk('path', { d: 'M176 30v14M169 37h14', class: 'sc-spark' }),
+    mk('path', { d: 'M40 44v8M36 48h8', class: 'sc-spark small' }),
+    mk('circle', { cx: 190, cy: 74, r: 3, class: 'sc-dot' })
+  );
+  return svg;
+}

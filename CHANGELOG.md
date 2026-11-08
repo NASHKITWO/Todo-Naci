@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.39.0] - 2026-11-09
+
+### Pengingat
+- Jangkauan pengingat diperluas: 45 hari ke depan, hingga 150 notifikasi (sebelumnya 14 hari / 60).
+- Spanduk di layar utama bila izin alarm tepat (exact alarm) ditolak, dengan tombol langsung ke pengaturannya.
+- Batasan yang tetap ada: jadwal dihitung ulang saat aplikasi dibuka; tanpa kode native, aplikasi yang lama tidak dibuka tetap kehabisan jadwal setelah 45 hari.
+
+### Desain
+- Pemilih tanggal dan jam tampil sebagai tombol berisi teks terformat (mis. "Kam, 5 Nov", "19:00"); ketukan tetap membuka pemilih sistem.
+- Ilustrasi khas (kartu tugas bertumpuk dengan cincin-centang) di sambutan dan semua layar kosong.
+
+### Build
+- Workflow `lockfile` (manual) untuk membuat dan meng-commit `package-lock.json`; tidak bisa dibuat di lingkungan pengembangan ini karena registry diblokir.
+
 ## [0.38.0] - 2026-11-08
 
 ### Desain: identitas, hierarki, keterbacaan (dari penilaian ulang)

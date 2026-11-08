@@ -72,3 +72,18 @@ test('Android: token dan kata sandi sinkron disimpan di penyimpanan native (buka
   assert.strictEqual(await page.evaluate("localStorage.getItem('todo-cli.autosync')"), null);
   await h.finish([page]);
 });
+
+test('izin "Alarm & pengingat" dicabut: spanduk muncul dengan tombol pengaturan; jadwal pengingat mencakup 45 hari', async () => {
+  const page = await h.open(env, { native: true, width: 390, height: 844, seed: [T(1, 'Berjam', { deadline: TODAY, due_time: '23:59' }), T(2, 'Jauh', { deadline: h.day(40), due_time: '09:00' })] });
+  await h.until(page, "window.__scheduled.length > 0");
+  assert.ok(await page.evaluate("window.__scheduled.some(n => n.id === 4)"), 'tugas 40 hari lagi ikut dijadwalkan (id 4 = tugas 2)');
+  assert.ok(await page.locator('#notif-banner').isHidden());
+  await page.evaluate("window.__exact = 'denied'");
+  await page.fill('#quick-input', 'Tambah memicu jadwal ulang');
+  await page.keyboard.press('Enter');
+  await h.until(page, "!document.querySelector('#notif-banner').hidden", 8000);
+  assert.match(await page.textContent('#notif-banner'), /Alarm & pengingat/);
+  await page.click('#exact-open');
+  assert.ok(await page.evaluate('window.__exactOpened === true'));
+  await h.finish([page]);
+});

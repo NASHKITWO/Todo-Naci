@@ -30,7 +30,7 @@ function buildDetail() {
       h('p', { class: 'sub' }, 'Pilih opsinya. Yang tidak diisi dibiarkan kosong.'),
       field('Judul', DET.title, 'det-title'),
       field('Prioritas', DET.prio),
-      h('div', { class: 'field' }, h('label', { for: 'det-date' }, 'Batas waktu'), DET.dates, h('div', { class: 'det-row' }, DET.date, DET.time), DET.times),
+      h('div', { class: 'field' }, h('label', { for: 'det-date' }, 'Batas waktu'), DET.dates, h('div', { class: 'det-row' }, pickBox(DET.date, 'date'), pickBox(DET.time, 'time')), DET.times),
       field('Proyek', h('div', {}, DET.project, h('datalist', { id: 'det-project-list' }, state.projects.map(p => h('option', { value: p.name }))), DET.projChips), 'det-project'),
       h('div', { class: 'two' }, field('Tag (pisahkan dengan koma)', DET.tags, 'det-tags'), field('Ulangi', DET.rc.el, 'det-repeat')),
       msg, DET.add,
@@ -53,6 +53,7 @@ function paintDetail(keepFocus) {
     onclick: () => { v.project = v.project.toLowerCase() === p.name.toLowerCase() ? '' : p.name; paintDetail(); } }, raw('@' + p.name))));
   if (DET.tags.value !== v.tags) DET.tags.value = v.tags;
   DET.rc.set(v.repeat);
+  refreshPicks();
 }
 async function openDetail() {
   buildDetail();
