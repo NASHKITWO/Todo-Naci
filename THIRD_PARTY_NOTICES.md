@@ -10,8 +10,8 @@ Semua komponen di bawah ini kompatibel dengan GPL-3.0 (MIT, Apache-2.0 versi 2.0
 
 | Komponen | Lisensi | Keterangan |
 |---|---|---|
-| Carlito (font badan teks) | SIL Open Font License 1.1 | © Łukasz Dziedzic / Google. Subset Latin. |
-| Tuntas Serif (font judul) | GUST Font License | Turunan Latin Modern Roman Demi 10, © 2003, 2009 B. Jackowski dan J. M. Nowacki (kelompok pengguna TeX). Subset Latin dan **diganti namanya** karena dimodifikasi, sesuai ketentuan lisensi. |
+| Inter (font teks dan judul) | SIL Open Font License 1.1 | © 2016 The Inter Project Authors (https://github.com/rsms/inter). Subset Latin, glyph tidak diubah. |
+| Bricolage Grotesque (font judul dan angka besar) | SIL Open Font License 1.1 | Copyright 2022 The Bricolage Grotesque Project Authors (https://github.com/ateliertriay/bricolage). Subset Latin, glyph tidak diubah. |
 | @capacitor/core, /android, /app, /filesystem, /local-notifications, /share | MIT | © Ionic. Dipakai sebagai kerangka aplikasi Android. |
 | AndroidX dan pustaka Android Gradle yang ditarik Capacitor | Apache License 2.0 | Ditarik otomatis saat build APK. |
 

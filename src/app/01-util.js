@@ -54,6 +54,7 @@ const ICONS = {
   chevron: 'M9 6l6 6-6 6',
   left: 'M15 6l-6 6 6 6',
   search: 'M11 4a7 7 0 100 14 7 7 0 000-14z|M21 21l-4.3-4.3',
+  tuntas: 'M12 3a9 9 0 100 18 9 9 0 000-18z|M7.8 12.4l3 3 5.6-6',
 };
 function icon(name, size) {
   const svg = document.createElementNS(SVG_NS, 'svg');

@@ -7,7 +7,7 @@ const { nextOccurrence, normalizeRule } = require('./recurrence');
 const { checkPriority, cleanDueTime, cleanNotes, cleanProject, cleanTags, cleanTitle } = require('./validate');
 const { parseBulk } = require('./quick');
 const { EPOCH, EXPORT_KEYS, MAX_TEMPLATES, SCHEMA_VERSION, TRASH_DAYS, TRASH_MAX, derivedUid, nowIso, randomUid, stampNow, todayIso } = require('./ids');
-const { cmpStr, mergeSync, validateSyncFile } = require('./sync');
+const { MAX_SYNC_TASKS, cmpStr, mergeSync, validateSyncFile } = require('./sync');
 
 class Store {
   /* persist: {load(): objek|null, save(objek)}; clock: {today(), now()} (untuk tes). */
@@ -40,6 +40,9 @@ class Store {
       this.tplPlain = true;
     }
   }
+  /* Salinan keadaan untuk membatalkan perubahan bila penyimpanan gagal (memori tidak boleh berbeda dari yang tersimpan). */
+  snapshotState() { return JSON.stringify({ nextId: this.nextId, tasks: this.tasks, tombs: this.tombs, trash: this.trash, trashSeq: this.trashSeq, templates: this.templates, tplPlain: this.tplPlain }); }
+  restoreState(s) { const d = JSON.parse(s); this.nextId = d.nextId; this.tasks = d.tasks; this.tombs = d.tombs; this.trash = d.trash; this.trashSeq = d.trashSeq; this.templates = d.templates; this.tplPlain = d.tplPlain; }
   save() { this.persist.save({ version: SCHEMA_VERSION, nextId: this.nextId, tasks: this.tasks, tombs: this.tombs, trash: this.trash, trashSeq: this.trashSeq, templates: this.templates, tplPlain: this.tplPlain }); }
 
   // ---- templat ----
@@ -346,13 +349,14 @@ class Store {
       try { return this.coerceImport(raw); }
       catch (e) { if (e instanceof TodoError || e instanceof TypeError || e instanceof RangeError) throw new TodoError('Tugas ke-' + (index + 1) + ' tidak valid: ' + e.message); throw e; }
     });
-    const idMap = new Map();
+    if (this.tasks.length + items.length > MAX_SYNC_TASKS) throw new TodoError('Impor terlalu besar: total tugas tidak boleh lebih dari ' + MAX_SYNC_TASKS + '.');
+    const idMap = new Map(); // hanya tugas tingkat atas yang boleh jadi induk (subtugas tidak punya subtugas)
     for (const it of items.filter(i => i.old_parent == null)) idMap.set(it.old_id, this.insert(it.fields));
     for (const it of items.filter(i => i.old_parent != null)) {
       const f = Object.assign({}, it.fields);
       f.parent_id = idMap.has(it.old_parent) ? idMap.get(it.old_parent) : null;
       if (f.parent_id !== null) f.repeat = null;
-      idMap.set(it.old_id, this.insert(f));
+      this.insert(f);
     }
     this.save();
     return items.length;

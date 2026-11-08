@@ -22,7 +22,7 @@ function patchManifest(text, opts) {
   let out = text;
   const missing = PERMISSIONS.filter(p => !out.includes('android:name="' + p + '"'));
   if (missing.length) {
-    const lines = missing.map(p => '    <uses-permission android:name="' + p + '" />\n').join('');
+    const lines = missing.map(p => '    <uses-permission android:name="' + p + '"' + (p === 'android.permission.SCHEDULE_EXACT_ALARM' ? ' android:maxSdkVersion="32"' : '') + ' />\n').join('');
     out = out.replace('</manifest>', () => lines + '</manifest>');
   }
   // Tidak ada lalu lintas tanpa enkripsi (token GitHub hanya lewat HTTPS).
@@ -32,6 +32,15 @@ function patchManifest(text, opts) {
     if (/android:allowBackup=/.test(tag)) return tag.replace(/android:allowBackup="[^"]*"/, 'android:allowBackup="true"');
     return tag.replace('<application', '<application android:allowBackup="true"');
   });
+  // Rahasia sinkron (SharedPreferences todo_secrets) dikecualikan dari cadangan Google/adb dan transfer perangkat.
+  if (opts.receiverPackage || opts.timePackage) {
+    out = out.replace(/<application\b[^>]*>/, tag => {
+      let t = tag;
+      if (!/android:fullBackupContent=/.test(t)) t = t.replace('<application', '<application android:fullBackupContent="@xml/todo_backup_rules"');
+      if (!/android:dataExtractionRules=/.test(t)) t = t.replace('<application', '<application android:dataExtractionRules="@xml/todo_data_extraction_rules"');
+      return t;
+    });
+  }
   // Menu Bagikan Android: teks dari aplikasi lain masuk sebagai tugas (ditangani MainActivity + plugin TodoWidget).
   if (opts.receiverPackage && !out.includes('android.intent.action.SEND')) {
     const selfClosed = /<activity\b[^>]*?\s*\/>/.exec(out);
@@ -42,6 +51,11 @@ function patchManifest(text, opts) {
     } else if (i >= 0) {
       out = out.slice(0, i) + widget.SHARE_FILTER + '        ' + out.slice(i);
     } // tanpa <activity> (manifest tak lazim): menu Bagikan dilewati
+  }
+  const pkgForTime = opts.timePackage || opts.receiverPackage;
+  if (pkgForTime && !out.includes('TodoTimeReceiver')) {
+    if (!out.includes('</application>')) throw new Error('AndroidManifest.xml tidak valid: tidak ada </application>');
+    out = out.replace('</application>', () => widget.timeReceiver(pkgForTime) + '    </application>');
   }
   if (opts.receiverPackage && !out.includes('TodoWidgetProvider')) {
     if (!out.includes('</application>')) throw new Error('AndroidManifest.xml tidak valid: tidak ada </application>');
@@ -173,6 +187,10 @@ function writeWidget(mainDir, pkg) {
   for (const f of widget.files(pkg)) write(path.join(mainDir, f.path), f.content);
 }
 
+function writeMinimal(mainDir, pkg) {
+  for (const f of widget.minimalFiles(pkg)) write(path.join(mainDir, f.path), f.content);
+}
+
 function main(androidDir, version, opts) {
   opts = opts || {};
   const mainDir = path.join(androidDir, 'app', 'src', 'main');
@@ -183,12 +201,19 @@ function main(androidDir, version, opts) {
     if (!activity) throw new Error('MainActivity.java tidak ditemukan (jalankan `npx cap add android` dulu), atau pakai --no-widget');
     pkg = packageOf(activity);
   }
-  fs.writeFileSync(manifest, patchManifest(fs.readFileSync(manifest, 'utf8'), { receiverPackage: pkg }));
+  // --no-widget tetap memasang plugin layar aman + penerima zona waktu bila MainActivity ditemukan.
+  let minPkg = null;
+  if (opts.widget === false) {
+    const activity = findMainActivity(path.join(mainDir, 'java'));
+    if (activity) minPkg = packageOf(activity);
+  }
+  fs.writeFileSync(manifest, patchManifest(fs.readFileSync(manifest, 'utf8'), { receiverPackage: pkg, timePackage: minPkg }));
   const gradle = path.join(androidDir, 'app', 'build.gradle');
   fs.writeFileSync(gradle, patchGradle(fs.readFileSync(gradle, 'utf8'), version, { signing: !!opts.signing }));
   writeIcons(path.join(mainDir, 'res'));
   writeSplash(path.join(mainDir, 'res'));
   if (pkg) writeWidget(mainDir, pkg);
+  else if (minPkg) writeMinimal(mainDir, minPkg);
   console.log('Android dipatch: izin, versi ' + version + ', ikon, splash' + (pkg ? ', widget (' + pkg + ')' : ', tanpa widget') + '.');
 }
 

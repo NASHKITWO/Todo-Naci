@@ -50,6 +50,7 @@ function renderInsights(root) {
       kpi(String(streakDays()), 'Hari beruntun', 'kpi-streak'),
       kpi(String(s.overdue || 0), 'Terlambat', 'kpi-overdue')),
     h('div', { class: 'panel' }, h('h3', {}, 'Tugas selesai per hari'),
+      weekTotal === 0 ? h('p', { class: 'insight-note', id: 'vbars-empty' }, 'Belum ada tugas selesai dalam 7 hari terakhir. Centang satu tugas untuk memulai grafik ini.') :
       h('div', { class: 'vbars', id: 'vbars' }, week.map(w => h('div', { class: 'vcol' },
         h('span', { class: 'n' }, String(w[1])),
         h('span', { class: 'bar' + (w[1] ? '' : ' zero'), style: { height: Math.max(4, Math.round(w[1] / max * 90)) + 'px' } }),

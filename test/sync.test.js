@@ -6,6 +6,8 @@ const assert = require('node:assert');
 const core = require('../src/todo-core.js');
 const golden = require('./golden/sync.json');
 
+// Catatan: sejak 0.37 subtugas yang induknya dihapus (ada penanda hapus) tetapi subtugasnya lebih baru diangkat jadi tugas biasa,
+// bukan dibuang diam-diam. 17 dari 150 kasus acuan diperbarui khusus untuk itu; perbedaan lain tidak ada.
 const clone = v => JSON.parse(JSON.stringify(v));
 
 test('penggabungan sama dengan hasil acuan (' + golden.merge.length + ' kasus acak)', () => {

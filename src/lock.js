@@ -13,7 +13,14 @@
   const write = c => { try { if (c) localStorage.setItem(KEY, JSON.stringify(c)); else localStorage.removeItem(KEY); return true; } catch (e) { return false; } };
   let cfg = read();
   // Android: blokir screenshot/pratinjau aplikasi terbaru selama kunci aktif (FLAG_SECURE lewat plugin TodoWidget)
-  const syncSecure = () => { try { const W = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.TodoWidget; if (W && typeof W.secure === 'function') Promise.resolve(W.secure({ on: !!cfg })).catch(() => {}); } catch (e) { /* abaikan */ } };
+  const syncSecure = () => {
+    try {
+      const C = window.Capacitor, P = (C && C.Plugins) || {};
+      let S = P.TodoSecure || P.TodoWidget; // plugin terpisah (tetap ada tanpa widget); TodoWidget untuk build lama
+      if (!S && C && typeof C.registerPlugin === 'function') { try { S = C.registerPlugin('TodoSecure'); } catch (e) { S = null; } }
+      if (S && typeof S.secure === 'function') Promise.resolve(S.secure({ on: !!cfg })).catch(() => {});
+    } catch (e) { /* bukan Android */ }
+  };
   let isLocked = false, hiddenAt = 0;
   const waiters = [];
 
@@ -27,8 +34,14 @@
   const validPin = pin => /^\d{4,8}$/.test(pin);
   const wait = fails => (fails >= 5 ? Math.min(900, 30 * Math.pow(2, fails - 5)) : 0); // detik
 
+  let verifying = false;
   async function verify(pin) {
     if (!cfg) return { ok: true };
+    if (verifying) return { ok: false, wait: 0, busy: true }; // satu pemeriksaan sekali jalan: tidak ada tebakan paralel
+    verifying = true;
+    try { return await verifyNow(pin); } finally { verifying = false; }
+  }
+  async function verifyNow(pin) {
     const now = Date.now();
     if (cfg.until && cfg.until > now) return { ok: false, wait: Math.ceil((cfg.until - now) / 1000) };
     const ok = validPin(pin) && same(await derive(pin, cfg.salt, cfg.iter || ITER), cfg.hash);
@@ -44,6 +57,7 @@
     cfg = { salt, iter: ITER, hash: await derive(pin, salt, ITER), auto: Number.isFinite(auto) ? auto : 30, fails: 0, until: 0 };
     if (!write(cfg)) { cfg = null; throw new Error('Penyimpanan di perangkat gagal (penuh atau diblokir).'); }
     syncSecure();
+    window.dispatchEvent(new Event('todo-lock-changed'));
   }
   function setAuto(sec) { if (cfg) { cfg = Object.assign({}, cfg, { auto: sec }); write(cfg); } }
 
@@ -137,7 +151,7 @@
     auto: () => (cfg ? cfg.auto : 30),
     setPin, setAuto, verify,
     lockNow: lock,
-    disable: async pin => { const r = await verify(pin); if (r.ok) { cfg = null; write(null); syncSecure(); } return r; },
+    disable: async pin => { const r = await verify(pin); if (r.ok) { cfg = null; write(null); syncSecure(); window.dispatchEvent(new Event('todo-lock-changed')); } return r; },
     afterUnlock: fn => { if (isLocked) waiters.push(fn); else fn(); },
   };
   syncSecure();

@@ -4,7 +4,7 @@ const ui = { view: 'today', project: null, tag: null, q: '', openId: null, newId
   expanded: new Set(), filter: 'all', sort: 'auto', day: null, weekOff: 0, select: false, picked: new Set() };
 try { const sv = localStorage.getItem('todo-sort'); if (sv) ui.sort = sv; } catch (e) {}
 const SORTS = [['auto', 'Otomatis'], ['prio', 'Prioritas'], ['time', 'Waktu'], ['new', 'Terbaru'], ['az', 'A–Z']];
-const FILTERS = [['all', 'Semua'], ['high', 'Prioritas tinggi'], ['timed', 'Ber-jam'], ['repeat', 'Berulang']];
+const FILTERS = [['all', 'Semua'], ['high', 'Penting'], ['timed', 'Berjam'], ['repeat', 'Berulang']];
 const curDay = () => ui.day || state.today;
 let suppressClick = false;
 const SWIPE_AT = 80;
@@ -47,7 +47,9 @@ async function refresh() {
     try { data.trash = (await api('GET', '/api/trash')).entries; } catch (e) { data.trash = state.trash; }
     const before = new Set(state.tasks.map(t => t.id));
     ui.newIds = state.loaded ? new Set(data.tasks.filter(t => !before.has(t.id)).map(t => t.id)) : new Set();
+    const prevToday = state.today;
     Object.assign(state, data);
+    if (prevToday && ui.day === prevToday && data.today !== prevToday) ui.day = data.today; // hari berganti: tanggal terpilih ikut maju
     state.loaded = true;
     $('#banner').hidden = true;
   } catch (e) {

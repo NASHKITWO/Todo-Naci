@@ -1,1 +1,1 @@
-package android.app; import android.view.Window; public class Activity { private final Window window=new Window(); public Window getWindow(){return window;} public void runOnUiThread(Runnable r){r.run();} }
+package android.app; public class Activity { public static boolean uiRan = false; public android.view.Window getWindow(){ return android.view.Window.INSTANCE; } public void runOnUiThread(Runnable r){ uiRan = true; r.run(); } }

@@ -158,10 +158,13 @@ test('tentang: nama pengembang dan versi tampil di panel cadangan', async () => 
   await h.finish([page]);
 });
 
-test('kredit pengembang tampil di layar daftar tugas (lengkap dengan email)', async () => {
+test('kredit pengembang ada di dialog "Tentang aplikasi" (lengkap dengan email), bukan di bawah daftar', async () => {
   const page = await h.open(env, { width: 390, height: 844, seed: [h.task(1, 'Satu')] });
+  assert.strictEqual(await page.locator('main #about-foot').count(), 0, 'daftar tugas bersih dari kredit');
+  assert.ok(!(await page.locator('#about-foot').isVisible()), 'dialog tertutup bawaannya');
+  await page.click('#menu-btn'); await page.click('#about-btn');
   const foot = page.locator('#about-foot');
-  await foot.scrollIntoViewIfNeeded();
+  await h.until(page, "!document.querySelector('#about-dlg').hidden");
   assert.ok(await foot.isVisible());
   const text = await foot.textContent();
   assert.match(text, /Pendiri dan Pengembang: Muhammad Ikhsan/);
@@ -174,6 +177,10 @@ test('kredit pengembang tampil di layar daftar tugas (lengkap dengan email)', as
   assert.match(await don.getAttribute('rel'), /noopener/);
   assert.match(await don.getAttribute('rel'), /noreferrer/);
   assert.ok(await page.evaluate("document.querySelector('#about-foot').getBoundingClientRect().bottom <= window.innerHeight"));
+  assert.match(await foot.textContent(), /GPL-3\.0/);
+  assert.strictEqual(await foot.locator('a[href="legal/LICENSE"]').count(), 1);
+  await page.keyboard.press('Escape');
+  await h.until(page, "document.querySelector('#about-dlg').hidden");
   await page.click('#menu-btn'); await page.click('#backup-btn');
   assert.match(await page.textContent('#about'), /ican3192@gmail\.com/);
   await h.finish([page]);

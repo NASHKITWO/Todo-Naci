@@ -15,15 +15,25 @@ const STAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?Z$/;
 
 const MAX_SYNC_TASKS = 20000;
 
+/* Cap waktu dari perangkat dengan jam salah (jauh di masa depan) akan menang atas semua suntingan sah, jadi dijepit ke batas wajar. */
+const MAX_FUTURE_MS = 36 * 3600 * 1000;
+function clampStamp(s) {
+  const limit = Date.now() + MAX_FUTURE_MS;
+  const t = Date.parse(s);
+  return Number.isFinite(t) && t > limit ? new Date(limit).toISOString() : s;
+}
+
 const cmpStr = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 
-function cleanSyncRecord(raw, index) {
+function cleanSyncRecord(rawIn, index) {
+  let raw = rawIn;
   try {
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new TodoError('bukan objek');
     const uid = raw.uid, parent = has(raw, 'parent_uid') ? raw.parent_uid : null;
     if (typeof uid !== 'string' || !UID_RE.test(uid)) throw new TodoError('uid tidak valid');
     if (parent !== null && (typeof parent !== 'string' || !UID_RE.test(parent) || parent === uid)) throw new TodoError('parent_uid tidak valid');
     if (typeof raw.updated_at !== 'string' || !STAMP_RE.test(raw.updated_at)) throw new TodoError('updated_at tidak valid');
+    raw = Object.assign({}, raw, { updated_at: clampStamp(raw.updated_at) });
     const deadline = raw.deadline == null ? null : raw.deadline;
     if (deadline !== null) {
       const m = typeof deadline === 'string' && /^(\d{4})-(\d{2})-(\d{2})$/.exec(deadline);
@@ -75,7 +85,7 @@ function validateSyncFile(data) {
   const tombs = deleted.map((raw, i) => {
     if (!raw || typeof raw !== 'object' || typeof raw.uid !== 'string' || !UID_RE.test(raw.uid) ||
         typeof raw.deleted_at !== 'string' || !STAMP_RE.test(raw.deleted_at)) throw new TodoError('Penanda hapus ke-' + (i + 1) + ' di berkas sinkron tidak valid.');
-    return { uid: raw.uid, deleted_at: raw.deleted_at };
+    return { uid: raw.uid, deleted_at: clampStamp(raw.deleted_at) };
   });
   const out = { records, tombs }, settings = cleanSettings(data.settings);
   if (settings) out.settings = settings;
@@ -112,7 +122,15 @@ function mergeSync(localRecords, localTombs, remoteRecords, remoteTombs) {
   for (const uid of Array.from(final.keys()).sort()) {
     const parent = final.get(uid).parent_uid;
     if (parent !== null && (!final.has(parent) || final.get(parent).parent_uid !== null)) {
-      final.delete(uid); // tanpa penanda hapus (sama dengan sync.py)
+      if (!final.has(parent) && tombs.has(parent)) {
+        // Induk dihapus di perangkat lain, tetapi subtugas ini dibuat/diubah sesudahnya: angkat jadi tugas biasa, jangan buang
+        // isinya diam-diam. Cap waktu diturunkan dari data (bukan jam), jadi semua perangkat menghitung hasil yang sama, dan
+        // rekaman ini lebih baru daripada versi lamanya sehingga menang saat digabung ulang.
+        const rec = final.get(uid), base = Math.max(Date.parse(rec.updated_at), Date.parse(tombs.get(parent)));
+        final.set(uid, Object.assign({}, rec, { parent_uid: null, updated_at: new Date(base + 1).toISOString() }));
+        continue;
+      }
+      final.delete(uid); // induk tidak dikenal / bertingkat: dibuang tanpa penanda hapus (sama dengan sync.py)
     }
   }
   const same = (a, b) => canonSync(a) === canonSync(b);

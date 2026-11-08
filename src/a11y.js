@@ -28,7 +28,10 @@
 
   function open(root, opts) {
     opts = opts || {};
-    stack.push({ root, returnTo: opts.returnTo || document.activeElement });
+    const dup = stack.findIndex(m => m.root === root); // dibuka dua kali (mis. "Duplikat" saat panel terbuka): satu entri saja
+    const prevReturn = dup >= 0 ? stack[dup].returnTo : null;
+    if (dup >= 0) stack.splice(dup, 1);
+    stack.push({ root, returnTo: opts.returnTo || prevReturn || document.activeElement });
     apply();
     root.inert = top() !== root; // di bawah layar kunci tetap inert
     const target = (opts.focus && root.querySelector(opts.focus)) || root;

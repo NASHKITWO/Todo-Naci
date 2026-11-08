@@ -1,8 +1,7 @@
 /* =====================================================================
-   Tampilan v2: font Lora untuk judul dan angka, baris lebih tenang,
+   Tampilan v2: baris lebih tenang,
    penulisan cepat di bawah (jangkauan jempol), panel detail sebagai lembar bawah
    ===================================================================== */
-.hero h2, .empty h2, .side-card .big, .kpi .v, .ring .label, .week-head h3, .panel h3 { font-family: var(--serif); font-weight: 600; }
 
 /* ---- baris ---- */
 
@@ -66,10 +65,6 @@
 .snap-row .btn { padding: 6px 12px; flex: none; }
 .login-card h3 {  font-size: 15px; }
 
-/* Kredit pengembang di bawah daftar */
-.about-foot {  padding: 14px 0 0; border-top: 1px solid var(--border);  color: var(--muted);  line-height: 1.6; }
-.about-foot .about-title { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--text); }
-.about-foot a { color: var(--accent); text-decoration: none; }
 
 /* Aksesibilitas: target sentuh >= 44px di ponsel (area ketuk diperluas tanpa mengubah tampilan) */
 @media (max-width: 860px) {
@@ -93,11 +88,8 @@
   .sub-row .check::after { inset: -14px; }
   button.chip { position: relative; }
   button.chip::after { content: ""; position: absolute; inset: -12px -4px; }
-  .about-foot a { display: inline-block; padding: 15px 8px; }
 }
 
-/* Donasi */
-.about-foot .donate {  align-items: center;    min-height: 44px; min-width: 44px;   border-radius: 999px;  }
 
 /* Sampah */
 .trash-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px;  flex-wrap: wrap; }

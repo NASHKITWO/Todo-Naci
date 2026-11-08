@@ -1,1 +1,1 @@
-package android.content; public class ComponentName { public ComponentName(Context c,Class<?> cls){} }
+package android.content; public class ComponentName { public ComponentName(Context c, Class<?> k){} }

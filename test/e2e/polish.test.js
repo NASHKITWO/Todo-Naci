@@ -108,10 +108,10 @@ test('warna proyek tidak kembar selama masih ada warna kosong, dan diingat setel
   await h.finish([page]);
 });
 
-test('tanda merek di pojok kiri atas memakai logo matahari bercentang', async () => {
+test('tanda merek di pojok kiri atas memakai logo cincin bercentang (motif "tuntas")', async () => {
   const page = await h.open(env, { seed: [] });
   assert.ok(await page.evaluate("document.querySelectorAll('#brand-mark svg circle, #brand-mark svg path').length > 0"));
   const d = await page.evaluate("document.querySelector('#brand-mark svg path').getAttribute('d')");
-  assert.match(d, /a5\.5 5\.5/, 'lingkaran matahari ada');
+  assert.match(d, /a9 9/, 'cincin ada');
   await h.finish([page]);
 });

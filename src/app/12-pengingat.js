@@ -40,6 +40,7 @@ function saveRemind() {
   window.todoRemind.set({ lead: Number(REM.lead.value), evening: { on: REM.evOn.checked, hour: Number(REM.evHour.value) } });
 }
 function openRemind() {
+  window.closeNav(); // dibuka dari menu samping: jangan biarkan menu terbuka di belakang dialog
   buildRemind();
   const p = window.todoRemind ? window.todoRemind.get() : { lead: 30, evening: { on: true, hour: 20 } };
   REM.lead.value = String(p.lead); REM.evOn.checked = p.evening.on; REM.evHour.value = String(p.evening.hour);

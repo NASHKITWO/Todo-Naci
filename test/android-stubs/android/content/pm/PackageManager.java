@@ -1,1 +1,1 @@
-package android.content.pm; import android.content.Intent; public class PackageManager { public Intent getLaunchIntentForPackage(String p){return null;} }
+package android.content.pm; public abstract class PackageManager { public abstract android.content.Intent getLaunchIntentForPackage(String p); }

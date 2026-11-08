@@ -73,8 +73,8 @@ berubah, dan tiap 5 menit selama aplikasi terbuka.
   walau alamat gist bocor. Nama berkas, ukuran, dan waktu ubah tetap terlihat. **Lupa kata sandi = isi gist tidak bisa dibuka**
   (data di HP aman); pakai *Atur ulang gist*, lalu aktifkan lagi dengan kata sandi baru di tiap HP.
 - **Tidak saling menimpa**: tiap HP hanya menulis berkasnya sendiri (`todo-sync-<id>.json`) dan membaca berkas semua HP.
-- Token dan kata sandi disimpan di penyimpanan privat aplikasi (tanpa enkripsi tambahan di HP) dan ikut cadangan Google bila
-  aktif. Gunakan token dengan izin `gist` saja dan cabut di GitHub bila HP hilang.
+- Token dan kata sandi disimpan di penyimpanan privat aplikasi (tanpa enkripsi tambahan di HP) dan dikecualikan dari cadangan Google
+  dan transfer perangkat (SharedPreferences `todo_secrets`). Gunakan token dengan izin `gist` saja dan cabut di GitHub bila HP hilang.
 - Tanpa internet, sinkron berhenti dan data lokal tidak berubah.
 
 Aturan penggabungan: versi tugas yang lebih baru menang, penghapusan menyebar, subtugas ikut induknya.

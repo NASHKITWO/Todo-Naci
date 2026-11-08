@@ -152,15 +152,34 @@ test('proyek palsu: izin, versi, ikon RGBA, ikon adaptif, splash, dan widget', (
   assert.strictEqual(fs.readFileSync(path.join(main, 'AndroidManifest.xml'), 'utf8'), before);
 });
 
-test('--no-widget: tanpa berkas dan receiver widget, MainActivity tak diubah', () => {
+test('--no-widget: tanpa widget, tetapi layar aman (FLAG_SECURE) dan penerima zona waktu tetap dipasang', () => {
   const { tmp, main, res, java } = fakeProject();
-  const original = fs.readFileSync(path.join(java, 'MainActivity.java'), 'utf8');
   pa.main(tmp, '0.8.0', { widget: false });
   assert.ok(!fs.existsSync(path.join(java, 'TodoWidgetProvider.java')));
+  assert.ok(!fs.existsSync(path.join(java, 'TodoWidgetPlugin.java')));
   assert.ok(!fs.existsSync(path.join(res, 'layout', 'widget_todo.xml')));
-  assert.ok(!fs.readFileSync(path.join(main, 'AndroidManifest.xml'), 'utf8').includes('TodoWidgetProvider'));
-  assert.strictEqual(fs.readFileSync(path.join(java, 'MainActivity.java'), 'utf8'), original);
+  const manifest = fs.readFileSync(path.join(main, 'AndroidManifest.xml'), 'utf8');
+  assert.ok(!manifest.includes('TodoWidgetProvider'));
+  assert.ok(manifest.includes('TodoTimeReceiver') && manifest.includes('android.intent.action.TIMEZONE_CHANGED'));
+  assert.ok(fs.existsSync(path.join(java, 'TodoSecurePlugin.java')));
+  const act = fs.readFileSync(path.join(java, 'MainActivity.java'), 'utf8');
+  assert.match(act, /registerPlugin\(TodoSecurePlugin\.class\)/);
+  assert.ok(!/TodoWidgetPlugin/.test(act), 'MainActivity minimal tidak merujuk plugin widget');
   assert.ok(fs.existsSync(path.join(res, 'mipmap-anydpi-v26', 'ic_launcher.xml')));
+  const again = fs.readFileSync(path.join(main, 'AndroidManifest.xml'), 'utf8');
+  pa.main(tmp, '0.8.0', { widget: false });
+  assert.strictEqual(fs.readFileSync(path.join(main, 'AndroidManifest.xml'), 'utf8').split('TodoTimeReceiver').length, again.split('TodoTimeReceiver').length, 'idempoten');
+});
+
+test('manifest dengan widget: SCHEDULE_EXACT_ALARM dibatasi API 32 dan penerima zona waktu tidak diekspor', () => {
+  const { tmp, main } = fakeProject();
+  pa.main(tmp, '0.8.0');
+  const m = fs.readFileSync(path.join(main, 'AndroidManifest.xml'), 'utf8');
+  assert.match(m, /SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32"/);
+  assert.match(m, /TodoTimeReceiver" android:exported="false"/);
+  assert.match(m, /android:fullBackupContent="@xml\/todo_backup_rules"/);
+  assert.match(m, /android:dataExtractionRules="@xml\/todo_data_extraction_rules"/);
+  for (const f of ['todo_backup_rules.xml', 'todo_data_extraction_rules.xml']) assert.ok(/todo_secrets\.xml/.test(fs.readFileSync(path.join(main, 'res', 'xml', f), 'utf8')), f);
 });
 
 test('widget tanpa MainActivity memberi pesan yang jelas', () => {

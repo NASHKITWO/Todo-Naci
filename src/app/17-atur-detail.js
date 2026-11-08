@@ -14,8 +14,8 @@ function buildDetail() {
   DET.dates = h('div', { class: 'quick-dates', id: 'det-dates' },
     DET_DATES.map(d => h('button', { class: 'btn small', type: 'button', 'data-days': d[1], onclick: () => { DET.v.deadline = addDaysIso(d[1]); paintDetail(); } }, d[0])),
     h('button', { class: 'btn small', type: 'button', id: 'det-nodate', onclick: () => { DET.v.deadline = ''; DET.v.time = ''; paintDetail(); } }, 'Tanpa tanggal'));
-  DET.date = h('input', { class: 'input', id: 'det-date', type: 'date', 'aria-label': 'Tanggal deadline', onchange: e => { DET.v.deadline = e.target.value; if (!e.target.value) DET.v.time = ''; paintDetail(); } });
-  DET.time = h('input', { class: 'input', id: 'det-time', type: 'time', 'aria-label': 'Jam deadline', onchange: e => { DET.v.time = e.target.value; paintDetail(); } });
+  DET.date = h('input', { class: 'input', id: 'det-date', type: 'date', 'aria-label': 'Tanggal batas waktu', onchange: e => { DET.v.deadline = e.target.value; if (!e.target.value) DET.v.time = ''; paintDetail(); } });
+  DET.time = h('input', { class: 'input', id: 'det-time', type: 'time', 'aria-label': 'Jam batas waktu', onchange: e => { DET.v.time = e.target.value; paintDetail(); } });
   DET.times = h('div', { class: 'quick-dates', id: 'det-times' },
     DET_TIMES.map(t => h('button', { class: 'btn small', type: 'button', 'data-time': t[1], onclick: () => { if (!DET.v.deadline) DET.v.deadline = state.today; DET.v.time = t[1]; paintDetail(); } }, t[0])));
   DET.project = h('input', { class: 'input', id: 'det-project', list: 'det-project-list', maxlength: '60', placeholder: 'mis. rumah', 'aria-label': 'Proyek', oninput: e => { DET.v.project = e.target.value.trim(); paintDetail(true); } });
@@ -30,7 +30,7 @@ function buildDetail() {
       h('p', { class: 'sub' }, 'Pilih opsinya. Yang tidak diisi dibiarkan kosong.'),
       field('Judul', DET.title, 'det-title'),
       field('Prioritas', DET.prio),
-      h('div', { class: 'field' }, h('label', { for: 'det-date' }, 'Deadline'), DET.dates, h('div', { class: 'det-row' }, DET.date, DET.time), DET.times),
+      h('div', { class: 'field' }, h('label', { for: 'det-date' }, 'Batas waktu'), DET.dates, h('div', { class: 'det-row' }, DET.date, DET.time), DET.times),
       field('Proyek', h('div', {}, DET.project, h('datalist', { id: 'det-project-list' }, state.projects.map(p => h('option', { value: p.name }))), DET.projChips), 'det-project'),
       h('div', { class: 'two' }, field('Tag (pisahkan dengan koma)', DET.tags, 'det-tags'), field('Ulangi', DET.rc.el, 'det-repeat')),
       msg, DET.add,
@@ -146,7 +146,8 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) refr
 setInterval(() => {
   const el = document.activeElement;
   const editing = el && el.closest && el.closest('#drawer, .subs-inline') && el.tagName !== 'BUTTON';
-  if (!document.hidden && !editing) refresh();
+  const dayChanged = state.today && localIso(new Date()) !== state.today; // tengah malam terlewati: segarkan walau sedang mengetik
+  if (!document.hidden && (!editing || dayChanged)) refresh();
 }, 20000);
 
 /* ---- bahasa ---- */

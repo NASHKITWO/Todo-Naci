@@ -1,40 +1,40 @@
 /* Tuntas Harian - Hak Cipta (c) 2026 Muhammad Ikhsan. SPDX-License-Identifier: GPL-3.0-or-later. Font: lihat fonts/LICENSES.txt */
-@font-face { font-family: "Carlito"; src: url("fonts/carlito-regular.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: "Carlito"; src: url("fonts/carlito-italic.woff") format("woff"); font-weight: 400; font-style: italic; font-display: swap; }
-@font-face { font-family: "Carlito"; src: url("fonts/carlito-bold.woff") format("woff"); font-weight: 700; font-style: normal; font-display: swap; }
-@font-face { font-family: "Tuntas Serif"; src: url("fonts/tuntas-serif-bold.woff") format("woff"); font-weight: 600 700; font-style: normal; font-display: swap; }
-/* Tema "buku tulis harian": kertas bergaris biru, garis margin merah, tinta biru, centang hijau. */
+@font-face { font-family: "Bricolage Grotesque"; src: url("fonts/bricolage-bold.woff") format("woff"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-regular.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-medium.woff") format("woff"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-semibold.woff") format("woff"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-bold.woff") format("woff"); font-weight: 700; font-style: normal; font-display: swap; }
+/* Token warna, bentuk, dan bayangan. Aksen bisa diganti pengguna (data-accent, lihat 20-pemolesan.css). */
 :root {
-  --bg: #f5f8fb; --surface: #ffffff; --surface-2: #e9eff6; --text: #15213b; --muted: #55637c;
-  --border: #c8d5e5; --rule: #c8d5e5; --margin: #d4493f;
-  --accent: #1f3f9e; --accent-hover: #172f7c; --accent-soft: #e2e9fa; --on-accent: #ffffff;
-  --p1: #c93a2e; --p2: #b0701a; --p3: #2f6db5; --ok: #1e7b4f;
-  --danger-soft: #fbe9e6; --warn-soft: #faf0d9; --ok-soft: #e0f2e8; --info-soft: #e2ecfa;
-  --danger-text: #b3281d; --warn-text: #84540a; --ok-text: #176b43; --info-text: #1f4fae;
-  --cover: #1b2f66; --cover-text: #e9eefb; --cover-muted: #cdd7f2; --cover-line: rgba(233,238,251,.18);
-  --shadow: 0 1px 0 rgba(21,33,59,.08);
-  --shadow-lg: -10px 0 28px rgba(21,33,59,.2);
-  --radius: 6px;
-  --serif: "Tuntas Serif", Georgia, "Times New Roman", serif;
-  --sans: "Carlito", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bg: #f4f5fa; --surface: #ffffff; --surface-2: #eceef6; --hover: #f6f7fc; --text: #13151d; --muted: #4a5165;
+  --border: #dfe2ec; --rule: #eaecf3;
+  --accent: #0a7f66; --accent-hover: #086a55; --accent-soft: #dcf5ee; --on-accent: #ffffff;
+  --raised: #ffffff; --edge: rgba(19, 21, 29, .05);
+  --p1: #e5484d; --p2: #d97706; --p3: #5b7fb8; --ok: #0f9d63;
+  --danger-soft: #ffe8ea; --warn-soft: #fff1d6; --ok-soft: #dcf6e9; --info-soft: #e6edff;
+  --danger-text: #c42a31; --warn-text: #8a5100; --ok-text: #0a7547; --info-text: #2343c4;
+  --shadow: 0 1px 2px rgba(19, 21, 29, .05), 0 8px 24px -14px rgba(19, 21, 29, .16);
+  --shadow-lg: 0 24px 60px -18px rgba(19, 21, 29, .38);
+  --radius: 14px; --radius-lg: 22px;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 :root[data-theme="dark"] {
-  --bg: #0f1622; --surface: #161f2e; --surface-2: #1e293b; --text: #e4eaf4; --muted: #97a5bc;
-  --border: #2b3a52; --rule: #2b3a52; --margin: #ee7468;
-  --accent: #8aa6ff; --accent-hover: #a5bbff; --accent-soft: #1b2a52; --on-accent: #0b1430;
-  --p1: #ff7b6e; --p2: #e8b04a; --p3: #78a9f0; --ok: #4cc38a;
-  --danger-soft: #3a1d1f; --warn-soft: #372c14; --ok-soft: #133224; --info-soft: #172a4a;
-  --danger-text: #ff9187; --warn-text: #f0c26a; --ok-text: #78dfaa; --info-text: #94b9f5;
-  --cover: #0a1020; --cover-text: #e4eaf4; --cover-muted: #a9b6cf; --cover-line: rgba(228,234,244,.14);
-  --shadow: 0 1px 0 rgba(0,0,0,.4);
-  --shadow-lg: -10px 0 28px rgba(0,0,0,.55);
+  --bg: #090b10; --surface: #141822; --surface-2: #1e2331; --hover: #191e2b; --text: #eceef6; --muted: #a9b0c4;
+  --raised: #1c2233; --edge: rgba(255, 255, 255, .07);
+  --border: #292e3d; --rule: #232837;
+  --accent: #4fd8b4; --accent-hover: #7ae3c5; --accent-soft: #11332b; --on-accent: #04211a;
+  --p1: #ff7378; --p2: #ffb049; --p3: #8fa9d6; --ok: #3ccf91;
+  --danger-soft: #3a1c20; --warn-soft: #382a12; --ok-soft: #12302a; --info-soft: #182645;
+  --danger-text: #ff9a9e; --warn-text: #ffc772; --ok-text: #74e3b2; --info-text: #a1bcff;
+  --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 10px 28px -16px rgba(0, 0, 0, .8);
+  --shadow-lg: 0 28px 70px -20px rgba(0, 0, 0, .85);
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; min-height: 100%; }
 body {
   background: var(--bg); color: var(--text);
-  font: 16.5px/1.45 var(--sans);
+  font: 15.5px/1.5 var(--sans); letter-spacing: -.006em;
   -webkit-font-smoothing: antialiased;
 }
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -76,7 +76,7 @@ svg { flex: none; }
 
 .main { min-width: 0; padding: 26px clamp(16px, 4vw, 44px) 80px; max-width: 960px; width: 100%; margin: 0 auto; }
 .topbar { display: flex; align-items: center; gap: 12px;  }
-.topbar h1 { margin: 0; font-family: var(--serif);    line-height: 1.2; }
+.topbar h1 { margin: 0; line-height: 1.15; }
 .topbar .sub { color: var(--muted); font-size: 14px; }
 .spacer { flex: 1; }
 .search input {

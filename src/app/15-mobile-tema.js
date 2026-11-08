@@ -103,9 +103,9 @@ $('#quick-input').addEventListener('input', renderQuickChips);
 $('#quick-input').addEventListener('blur', () => setTimeout(renderQuickChips, 120));
 
 /* ---- aksen warna ---- */
-const ACCENTS = [['indigo', 'Biru tinta'], ['teal', 'Hijau daun'], ['rose', 'Merah bata'], ['amber', 'Cokelat kopi'], ['ocean', 'Arang']];
+const ACCENTS = [['teal', 'Hijau daun'], ['indigo', 'Biru tinta'], ['rose', 'Merah bata'], ['amber', 'Cokelat kopi'], ['ocean', 'Arang']];
 function cycleAccent() {
-  const cur = document.documentElement.dataset.accent || 'indigo';
+  const cur = document.documentElement.dataset.accent || 'teal';
   const i = ACCENTS.findIndex(a => a[0] === cur);
   const next = ACCENTS[(i + 1) % ACCENTS.length];
   document.documentElement.dataset.accent = next[0];
@@ -153,7 +153,7 @@ function fitPlaceholder() {
 fitPlaceholder();
 window.addEventListener('resize', fitPlaceholder);
 
-$('#brand-mark').append(icon('sparkle', 20)); // matahari bercentang = logo
+$('#brand-mark').append(icon('tuntas', 22)); // matahari bercentang = logo
 $('#menu-btn').append(icon('menu', 18));
 $('#menu-btn').addEventListener('click', () => toggleNav(true));
 $('#scrim').addEventListener('click', () => { toggleNav(false); if (ui.openId !== null) closeDrawer(); });

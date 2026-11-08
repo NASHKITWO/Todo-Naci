@@ -40,6 +40,31 @@ test('PIN: tersimpan sebagai hash, terkunci saat dibuka ulang, salah PIN ditolak
   await h.finish([page]);
 });
 
+test('ponsel: kunci dibuka dari menu samping, setelah "Kunci sekarang" dan PIN benar, menu tertutup dan kolom tambah tugas bisa dipakai', async () => {
+  const page = await h.open(env, { seed: seed(), width: 390, height: 844 });
+  await page.click('#menu-btn'); await page.click('#lock-btn');
+  await h.until(page, "!document.querySelector('#lock-settings').hidden");
+  assert.ok(!(await page.evaluate("document.body.classList.contains('nav-open')")), 'menu samping tertutup saat dialog kunci dibuka');
+  await page.fill('#lk-pin', '4321'); await page.fill('#lk-pin2', '4321'); await page.click('#lk-enable');
+  await h.until(page, "document.querySelector('#lk-msg').classList.contains('ok')");
+  await page.click('#lk-now');
+  await h.until(page, "!document.querySelector('#lock').hidden");
+  await page.fill('#lock-pin', '4321'); await page.keyboard.press('Enter');
+  await h.until(page, "document.querySelector('#lock').hidden");
+  assert.ok(!(await page.evaluate("document.querySelector('main.main').inert")), 'isi aplikasi bisa dipakai lagi');
+  await page.fill('#quick-input', 'Sesudah buka kunci'); await page.keyboard.press('Enter');
+  await h.waitStored(page, d => d.tasks.some(t => t.title === 'Sesudah buka kunci'), 'tugas baru setelah buka kunci');
+  // matikan kunci lewat dialog: Esc harus tetap menutup dialog (fokus tidak boleh jatuh ke body)
+  await page.click('#menu-btn'); await page.click('#lock-btn');
+  await h.until(page, "!document.querySelector('#lock-settings').hidden");
+  await page.fill('#lk-cur', '4321'); await page.click('#lk-disable');
+  await h.until(page, "document.querySelector('#lk-msg').classList.contains('ok')");
+  await page.keyboard.press('Escape');
+  await h.until(page, "document.querySelector('#lock-settings').hidden");
+  assert.ok(!(await page.evaluate("document.querySelector('main.main').inert")));
+  await h.finish([page]);
+});
+
 test('kunci otomatis saat kembali dari latar belakang; dialog lain tidak bisa melewati layar kunci', async () => {
   const page = await h.open(env, { seed: seed() });
   await enable(page, '2468');

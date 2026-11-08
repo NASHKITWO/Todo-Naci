@@ -1,1 +1,1 @@
-package android.app; import java.util.*; public class AlarmManager { public static final List<String> cancelled=new ArrayList<>(); public void cancel(PendingIntent p){String s=p.describe(); cancelled.add(s.startsWith("broadcast#")?s.substring("broadcast#".length()):s);} }
+package android.app; public class AlarmManager { public static java.util.List<String> cancelled=new java.util.ArrayList<>(); public void cancel(PendingIntent p){cancelled.add(p.tag);} }

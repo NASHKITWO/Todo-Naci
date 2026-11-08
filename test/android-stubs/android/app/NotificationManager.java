@@ -1,1 +1,1 @@
-package android.app; import java.util.*; public class NotificationManager { public static final List<Integer> cancelled=new ArrayList<>(); public void cancel(int id){cancelled.add(id);} }
+package android.app; public class NotificationManager { public static java.util.List<Integer> cancelled=new java.util.ArrayList<>(); public static final int IMPORTANCE_DEFAULT=3; public void cancel(int id){cancelled.add(id);} public void createNotificationChannel(NotificationChannel c){} public void notify(int id, Notification n){ Notification.posted.add(id+":"+n.title); } }

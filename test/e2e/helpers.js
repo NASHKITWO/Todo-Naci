@@ -44,6 +44,12 @@ window.Capacitor = {
       if (window.__fsFail) throw new Error('Permission denied');
       window.__written = o; window.__writes.push(o); return {uri: 'file:///cache/' + o.path};
     }},
+    TodoSecure: {
+      secure: async () => {},
+      secretSet: async (o) => { const m = JSON.parse(sessionStorage.getItem('__secrets') || '{}'); m[o.key] = o.value; sessionStorage.setItem('__secrets', JSON.stringify(m)); },
+      secretGet: async (o) => ({value: (JSON.parse(sessionStorage.getItem('__secrets') || '{}'))[o.key] || ''}),
+      secretRemove: async (o) => { const m = JSON.parse(sessionStorage.getItem('__secrets') || '{}'); delete m[o.key]; sessionStorage.setItem('__secrets', JSON.stringify(m)); },
+    },
     TodoWidget: {
       update: async (o) => { window.__widget.push(JSON.parse(o.items)); },
       completed: async () => ({uids: window.__widgetDone.slice()}),
@@ -78,6 +84,7 @@ const A11Y_AUDIT = `(() => {
   const sel = 'button, a[href], input:not([type=hidden]), select, textarea, [role=button], [role=checkbox], [role=tab]';
   for (const el of document.querySelectorAll(sel)) {
     if (!vis(el)) continue;
+    if (el.closest('details:not([open])') && !el.matches('summary')) continue; // isi yang dilipat tidak terlihat
     if (!name(el)) out.noName.push(label(el));
     el.scrollIntoView({ block: 'center', inline: 'nearest' });
     const r = el.getBoundingClientRect();

@@ -32,9 +32,13 @@ function paintLockSettings() {
   if (on) LCK.auto.value = String(window.TodoLock.auto());
   LCK.pin.value = LCK.pin2.value = LCK.cur.value = '';
   LCK.msg.textContent = '';
+  // Tombol yang baru ditekan bisa ikut tersembunyi (mis. "Matikan kunci"): fokus jatuh ke body dan Esc tak lagi menutup dialog.
+  const a = document.activeElement;
+  if (!LCK.el.hidden && (!a || a === document.body || a.closest('[hidden]'))) $('#lk-close').focus({ preventScroll: true });
 }
 function openLockSettings() {
   if (!window.TodoLock) return;
+  window.closeNav(); // dibuka dari menu samping: jangan biarkan menu terbuka di belakang dialog / layar kunci
   buildLockSettings(); paintLockSettings();
   LCK.el.hidden = false;
   window.TodoA11y.open(LCK.el, { focus: window.TodoLock.enabled() ? '#lk-auto' : '#lk-pin', returnTo: () => $('#lock-btn') });

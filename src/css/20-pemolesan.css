@@ -3,14 +3,16 @@
    ===================================================================== */
 
 /* ---- aksen warna (terang lalu gelap) ---- */
-:root[data-accent="teal"]  { --accent: #12705a; --accent-hover: #0d5946; --accent-soft: #ddf1ea; --on-accent: #fff; }
-:root[data-accent="rose"]  { --accent: #a8352b; --accent-hover: #8a2a21; --accent-soft: #f8e4e1; --on-accent: #fff; }
-:root[data-accent="amber"] { --accent: #7a4d14; --accent-hover: #623c0e; --accent-soft: #f4e8d6; --on-accent: #fff; }
-:root[data-accent="ocean"] { --accent: #2a303d; --accent-hover: #181c25; --accent-soft: #e4e7ed; --on-accent: #fff; }
-:root[data-theme="dark"][data-accent="teal"]  { --accent: #52d1ad; --accent-hover: #76dcc0; --accent-soft: #123a30; --on-accent: #06211a; }
-:root[data-theme="dark"][data-accent="rose"]  { --accent: #ff8f84; --accent-hover: #ffa8a0; --accent-soft: #3d1c1a; --on-accent: #2a0d0a; }
-:root[data-theme="dark"][data-accent="amber"] { --accent: #e8b46a; --accent-hover: #efc78d; --accent-soft: #382a12; --on-accent: #231700; }
-:root[data-theme="dark"][data-accent="ocean"] { --accent: #c9d1e0; --accent-hover: #e0e5ef; --accent-soft: #252c3b; --on-accent: #10141c; }
+/* indigo = bawaan (token di 10-dasar.css) */
+/* teal = bawaan (token di 10-dasar.css) */
+:root[data-accent="indigo"] { --accent: #3d5afe; --accent-hover: #2f47d6; --accent-soft: #e8ecff; --on-accent: #fff; }
+:root[data-accent="rose"]  { --accent: #d42d41; --accent-hover: #b3243a; --accent-soft: #ffe6e9; --on-accent: #fff; }
+:root[data-accent="amber"] { --accent: #b45309; --accent-hover: #92420a; --accent-soft: #fdecd6; --on-accent: #fff; }
+:root[data-accent="ocean"] { --accent: #20242f; --accent-hover: #0f121a; --accent-soft: #e6e8ef; --on-accent: #fff; }
+:root[data-theme="dark"][data-accent="indigo"] { --accent: #8c9cff; --accent-hover: #a7b3ff; --accent-soft: #1d2447; --on-accent: #0a0f2e; }
+:root[data-theme="dark"][data-accent="rose"]  { --accent: #ff8a99; --accent-hover: #ffa6b1; --accent-soft: #3f1a21; --on-accent: #2b0a10; }
+:root[data-theme="dark"][data-accent="amber"] { --accent: #f0b062; --accent-hover: #f5c487; --accent-soft: #3a2a12; --on-accent: #241600; }
+:root[data-theme="dark"][data-accent="ocean"] { --accent: #d3d9e8; --accent-hover: #eceff7; --accent-soft: #272d3d; --on-accent: #10141c; }
 .brand-mark, .btn.primary, .quick .btn.primary { transition: background .25s, box-shadow .25s; }
 
 /* ---- sapaan + cincin progres ---- */

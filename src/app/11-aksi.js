@@ -30,8 +30,16 @@ async function guarded(fn) {
   catch (e) { toast(T(e.message), 'error'); await refresh(); return null; }
 }
 
+const togglingIds = new Set();
 async function toggleDone(t) {
+  if (togglingIds.has(t.id)) return; // ketukan ganda: abaikan, jangan buat tugas berulang kedua
+  togglingIds.add(t.id);
+  try { await toggleDoneNow(t); } finally { togglingIds.delete(t.id); }
+}
+async function toggleDoneNow(t) {
   const done = !t.done;
+  const owner = t.parent_id != null ? taskById(t.parent_id) : t; // induk yang aturan ulangnya bisa berpindah saat selesai
+  const ownerRepeat = owner ? owner.repeat : null;
   const el = document.querySelector('.row[data-id="' + t.id + '"]');
   if (el && motionOK() && !el.classList.contains('leaving')) {
     const c = done && el.querySelector('.check');
@@ -44,7 +52,7 @@ async function toggleDone(t) {
     if (!done) return;
     buzz(12);
     const msg = r.next ? T('Selesai · berikutnya {when}', { when: relLabel(r.next.deadline).toLowerCase() }) : T('Tugas selesai');
-    toast(msg, 'ok', { label: 'Urungkan', fn: () => undoDone(t, r.next) });
+    toast(msg, 'ok', { label: 'Urungkan', fn: () => undoDone(t, r.next, owner ? owner.id : t.id, ownerRepeat) });
     if (ui.view === 'today' && !ui.project && !ui.tag && !ui.q.trim() && !visibleTasks().length) celebrate();
   });
 }
@@ -78,7 +86,8 @@ async function snooze(t, kind) {
     d.setMinutes(Math.ceil(d.getMinutes() / 5) * 5, 0, 0);
     body = { deadline: localIso(d), due_time: hhmm(d) };
   } else if (kind === 'evening') {
-    body = { deadline: state.today, due_time: '17:00' };
+    if (nowHHMM() >= '17:00') { body = { deadline: addDaysIso(1), due_time: '17:00' }; kind = 'tomorrow'; } // 17:00 hari ini sudah lewat
+    else body = { deadline: state.today, due_time: '17:00' };
   } else if (kind === 'tomorrow') {
     body = { deadline: addDaysIso(1) };
   } else {
@@ -106,12 +115,12 @@ async function reschedOverdue(items) {
   }) });
 }
 
-async function undoDone(t, next) {
+async function undoDone(t, next, ownerId, ownerRepeat) {
   await guarded(async () => {
     await api('POST', '/api/tasks/' + t.id + '/done', { done: false });
     if (next) {
       await api('DELETE', '/api/tasks/' + next.id, { permanent: true });
-      await api('PATCH', '/api/tasks/' + t.id, { repeat: t.repeat });
+      await api('PATCH', '/api/tasks/' + (ownerId != null ? ownerId : t.id), { repeat: ownerId != null ? ownerRepeat : t.repeat });
     }
     await refresh();
   });

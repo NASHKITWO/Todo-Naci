@@ -1,1 +1,1 @@
-package android.view; public interface WindowManager { final class LayoutParams { public static final int FLAG_SECURE=8192; } }
+package android.view; public class WindowManager { public static class LayoutParams { public static final int FLAG_SECURE = 0x00002000; } }

@@ -43,7 +43,7 @@
     'Pekan sebelumnya': 'Previous week', 'Pekan berikutnya': 'Next week', 'Tutup panel': 'Close panel',
     Otomatis: 'Automatic', Prioritas: 'Priority', Waktu: 'Time', Terbaru: 'Newest', Urutkan: 'Sort',
     'Urut: {name}': 'Sort: {name}', 'Diurutkan: {name}': 'Sorted by: {name}',
-    Semua: 'All', 'Prioritas tinggi': 'High priority', 'Ber-jam': 'With time', Berulang: 'Recurring',
+    Semua: 'All', 'Prioritas tinggi': 'High priority', 'Ber-jam': 'With time', Penting: 'Important', Berjam: 'Timed', Berulang: 'Recurring',
     'Tugas selesai': 'Task done',
   });
 
@@ -119,7 +119,7 @@
 
   // ---- panel detail ----
   add({
-    'Judul tugas': 'Task title', 'Tidak berulang': 'Does not repeat', 'Jam deadline': 'Deadline time', 'Minggu depan': 'Next week',
+    'Judul tugas': 'Task title', 'Tidak berulang': 'Does not repeat', 'Jam deadline': 'Deadline time', 'Jam batas waktu': 'Due time', 'Tanggal batas waktu': 'Due date', 'Batas waktu': 'Due date', 'Jadwalkan ulang': 'Reschedule', 'Belum ada tanggal': 'No date yet', 'Minggu depan': 'Next week',
     'Hapus tanggal': 'Clear date', 'mis. rumah': 'e.g. home', 'tagihan, penting': 'bills, important',
     'Catatan, tautan, atau detail lain…': 'Notes, links, or other details…', 'Tambah subtugas lalu tekan Enter': 'Add a subtask and press Enter',
     Deadline: 'Deadline', Tunda: 'Snooze', '+1 jam': '+1 hour', 'Sore ini': 'This evening', Ulangi: 'Repeat',
@@ -180,6 +180,9 @@
     'Tunda 1 jam': 'Snooze 1 hour',
     'Pendiri dan Pengembang: Muhammad Ikhsan': 'Founder and Developer: Muhammad Ikhsan', 'Teknik Informatika, Universitas Pamulang': 'Informatics Engineering, Universitas Pamulang',
     'Dukung pengembang (donasi)': 'Support the developer (donate)',
+    'Tentang aplikasi': 'About this app', 'Kredit, lisensi, dan donasi': 'Credits, license, and donations', 'Versi {v}': 'Version {v}',
+    '\u00a9 2026 Muhammad Ikhsan. Perangkat lunak bebas di bawah GPL-3.0 atau yang lebih baru, tanpa jaminan. Turunannya wajib tetap terbuka.': '\u00a9 2026 Muhammad Ikhsan. Free software under GPL-3.0 or later, without warranty. Derivative works must stay open.',
+    'Teks lisensi': 'License text', 'Komponen pihak ketiga': 'Third-party components',
     'Teks cadangan': 'Backup text', 'Tempel teks cadangan di sini untuk memulihkan…': 'Paste backup text here to restore…',
     'Cadangan Tuntas Harian': 'Tuntas Harian backup', 'Simpan cadangan ke…': 'Save backup to…',
     'Cadangan dibagikan. Simpan di tempat aman (mis. kirim ke diri sendiri).': 'Backup shared. Keep it somewhere safe (e.g. send it to yourself).',
@@ -279,8 +282,8 @@
     'Ada salinan data rusak yang disimpan di perangkat.': 'A copy of damaged data is kept on this device.',
     'Pulihkan dari snapshot': 'Restore from snapshot', 'Bagikan salinan': 'Share the copy', 'Buang salinan': 'Discard the copy',
     'Data dipulihkan dari snapshot terbaru.': 'Data restored from the latest snapshot.',
-    'Token dan kata sandi disimpan di HP ini tanpa enkripsi tambahan dan bisa ikut cadangan otomatis Android (Google). Jika HP hilang atau berpindah tangan, cabut token di GitHub (Settings > Developer settings > Tokens).':
-      'The token and passphrase are stored on this phone without extra encryption and may be included in Android (Google) auto-backup. If the phone is lost or changes hands, revoke the token on GitHub (Settings > Developer settings > Tokens).',
+    'Token dan kata sandi disimpan di penyimpanan privat aplikasi di HP ini tanpa enkripsi tambahan, dan tidak ikut cadangan Google. Jika HP hilang atau berpindah tangan, cabut token di GitHub (Settings > Developer settings > Tokens).':
+      'The token and passphrase are stored in the app\'s private storage on this phone without extra encryption, and are not included in Google backup. If the phone is lost or changes hands, revoke the token on GitHub (Settings > Developer settings > Tokens).',
     'Mulai dari yang kecil.': 'Start small.',
     'Ketik di kolom tambah tugas, mis. “Beli susu”, lalu pilih tombol tanggal, prioritas, atau proyek di sebelahnya.': 'Type in the add-task field, e.g. “Buy milk”, then pick a date, priority or project button beside it.',
     Setiap: 'Every', 'Hari kerja': 'Weekdays', 'Setiap hari kerja': 'Every weekday', 'Hari kerja (Sen–Jum)': 'Weekdays (Mon–Fri)', 'Hari tertentu…': 'Specific days…',
@@ -292,7 +295,7 @@
   });
   const tr = s => T(s);
   add({
-    'Pindah sisa ke besok': 'Move the rest to tomorrow',
+    'Pindah sisa ke besok': 'Move the rest to tomorrow', 'Tunda sisa ke besok': 'Snooze the rest to tomorrow',
     'Tidak ada tugas tersisa untuk dipindah.': 'Nothing left to move.',
     '{n} tugas dipindah ke besok': ['{n} task moved to tomorrow', '{n} tasks moved to tomorrow'],
     'Pengingat': 'Reminders', 'Atur pengingat dan ringkasan malam': 'Set reminders and the evening summary',
@@ -305,7 +308,7 @@
       'Applies to tasks that have a time. Each task can have its own reminder in its detail panel. These settings sync along with your tasks when sync is on.',
     'Ringkasan malam memberi tahu tugas yang belum tuntas, dengan tombol "Pindah ke besok".':
       'The evening summary lists unfinished tasks, with a "Move to tomorrow" button.',
-    'Pindah ke besok': 'Move to tomorrow', 'Besok jatuh tempo': 'Due tomorrow', 'Jatuh tempo sekarang': 'Due now',
+    'Pindah ke besok': 'Move to tomorrow', 'Ada tugas yang perlu dilihat.': 'There are tasks to check.', 'Besok jatuh tempo': 'Due tomorrow', 'Jatuh tempo sekarang': 'Due now',
     'Dalam {n} menit': 'In {n} minutes', '{n} tugas belum tuntas: {names}': '{n} tasks not done yet: {names}',
   });
   add({

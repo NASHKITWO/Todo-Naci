@@ -1,1 +1,1 @@
-package android.appwidget; import android.content.Context; import android.content.Intent; public class AppWidgetProvider { public void onUpdate(Context c,AppWidgetManager m,int[] ids){} public void onReceive(Context c,Intent i){} }
+package android.appwidget; public class AppWidgetProvider { public void onUpdate(android.content.Context c, AppWidgetManager m, int[] ids){} public void onReceive(android.content.Context c, android.content.Intent i){} }

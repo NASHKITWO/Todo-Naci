@@ -102,20 +102,21 @@ function renderHero() {
   HERO.bar.setAttribute('stroke-dashoffset', String(C * (1 - frac)));
   HERO.ring.classList.toggle('full', total > 0 && open.length === 0);
   HERO.ring.setAttribute('aria-label', T('{done} dari {total} tugas hari ini selesai', { done: doneToday, total }));
-  $('#hero-label').textContent = total ? doneToday + '/' + total : '0';
+  if (total > 0 && open.length === 0) $('#hero-label').replaceChildren(icon('check', 24));
+  else $('#hero-label').textContent = total ? doneToday + '/' + total : '0';
   const meta = [];
   const now = nowHHMM();
   const next = open.filter(t => t.due_time && t.deadline === state.today && t.due_time >= now)
     .sort((a, b) => a.due_time.localeCompare(b.due_time))[0];
   if (next) {
     meta.push(h('button', { class: 'chip', type: 'button', id: 'hero-next', onclick: () => openDrawer(next.id) },
-      icon('clock', 12), h('span', { class: 'ell' }, T('Berikutnya {time}', { time: next.due_time }) + ' · ' + next.title)));
+      icon('clock', 14), h('span', { class: 'nx' }, h('span', { class: 'nx-l' }, T('Berikutnya {time}', { time: next.due_time })), h('span', { class: 'nx-t' }, next.title))));
   }
   const streak = streakDays();
   if (streak >= 2) meta.push(h('span', { class: 'chip', id: 'hero-streak' }, icon('flame', 12), T('Beruntun {n} hari', { n: streak })));
-  if (open.length) {
+  if (open.length) { // namanya "Tunda" (ke besok), beda dari "Pindah ke hari ini" di daftar terlambat
     meta.push(h('button', { class: 'chip', type: 'button', id: 'hero-tomorrow', onclick: () => moveRemainingTomorrow() },
-      icon('clock', 12), h('span', { class: 'ell' }, T('Pindah sisa ke besok'))));
+      icon('clock', 12), h('span', { class: 'ell' }, T('Tunda sisa ke besok'))));
   }
   HERO.meta.replaceChildren(...meta);
 }

@@ -1,5 +1,114 @@
 # Changelog
 
+## [0.38.0] - 2026-11-08
+
+### Desain: identitas, hierarki, keterbacaan (dari penilaian ulang)
+- Identitas: kartu sapaan kini teal pekat bergradasi dengan motif cincin-centang besar yang samar; cincin progres putih, penuh jadi putih dengan centang hijau.
+- Hierarki chip: hanya tanggal yang berlatar pil; proyek = titik warna + teks; tag = teks redup.
+- Teks sekunder: warna muted lebih gelap (terang) / lebih terang (gelap), chip 14,5px.
+- Tombol di kartu sapaan "Pindah sisa ke besok" -> "Tunda sisa ke besok", supaya tidak mirip "Pindah ke hari ini" di daftar terlambat.
+
+## [0.37.0] - 2026-11-08
+
+### Tiga sisa temuan audit
+- Sinkron: subtugas yang dibuat/diubah SESUDAH induknya dihapus di perangkat lain kini diangkat menjadi tugas biasa (sebelumnya dibuang diam-diam). Cap waktunya diturunkan dari data (bukan jam), jadi semua perangkat menghitung hasil yang sama dan penggabungan tetap konvergen. 17 dari 150 kasus acuan di test/golden/sync.json diperbarui khusus untuk perilaku ini; kasus lain tidak berubah.
+- Android, zona waktu: penerima TIMEZONE_CHANGED menampilkan notifikasi "Zona waktu berubah, buka Tuntas Harian agar jam pengingat disesuaikan"; aplikasi juga menghitung ulang jadwal saat zona waktu berubah selagi terbuka atau saat dibuka kembali.
+- Android, layar aman: FLAG_SECURE (blokir screenshot/pratinjau saat PIN aktif) kini lewat plugin terpisah TodoSecure yang tetap terpasang walau build memakai --no-widget.
+- Android, cadangan: token dan kata sandi sinkron disimpan di SharedPreferences native `todo_secrets` yang dikecualikan dari cadangan Google/adb dan transfer perangkat (fullBackupContent + dataExtractionRules). Token lama di localStorage dipindahkan otomatis sekali. Tanpa plugin (peramban) tetap di localStorage. HP baru hasil pemulihan Google perlu memasukkan token lagi.
+- Tes: kompilasi Java varian tanpa widget + uji penerima zona waktu terhadap kelas Android tiruan, uji manifest/aturan cadangan, uji e2e penyimpanan rahasia native (dibuka ulang, dimatikan), uji penggabungan subtugas yatim.
+Catatan jujur: bagian Android baru diuji dengan kompilator terhadap kelas Android tiruan, belum di HP sungguhan.
+
+## [0.36.0] - 2026-11-08
+
+### Perbaikan dari audit kode independen (3 peninjau: UI, keamanan/sinkron, Android)
+Bug UI
+- Setelah "Duplikat" lalu menutup panel detail, seluruh aplikasi tidak bisa disentuh (tumpukan dialog berisi entri ganda). Sekarang satu entri per dialog.
+- "Urungkan" setelah menyelesaikan subtugas terakhir dari tugas berulang membuat induknya kehilangan aturan ulang. Sekarang aturan ulang induk dipulihkan.
+- Ketuk ganda pada centang tugas berulang membuat dua toast dan "Urungkan" yang menyisakan duplikat. Ketukan kedua kini diabaikan.
+- Hari berganti saat aplikasi terbuka: tanggal terpilih di Kalender ikut maju, dan segarkan tetap jalan saat mengetik di panel detail, sehingga "Hari ini/Besok/Tunda" tidak memakai tanggal kemarin.
+- "Sore ini (17:00)" setelah jam 17:00 kini memindahkan ke besok 17:00 (sebelumnya langsung terlambat tanpa pengingat).
+Data dan sinkron
+- Penyimpanan penuh/diblokir: perubahan di memori dibatalkan sehingga layar tidak menampilkan tugas yang tidak tersimpan (dan hilang saat aplikasi ditutup). Perubahan setengah jalan akibat galat juga dibatalkan.
+- Satu baris tugas cacat tidak lagi membuang seluruh daftar; baris sehat tetap dimuat, salinan mentah diamankan. Bila salinan tak bisa diamankan, penulisan ditahan agar data asli tidak tertimpa kosong.
+- Impor cadangan: subtugas bertingkat 3 tidak lagi dibuat (sebelumnya hilang diam-diam saat sinkron berikutnya); impor di atas 20.000 tugas ditolak.
+- Sinkron: cap waktu jauh di masa depan (jam perangkat salah) dijepit, sehingga tidak mengalahkan semua suntingan sah selamanya.
+- Salinan harian (snapshot): bila kuota penuh, salinan terlama dibuang daripada gagal diam-diam.
+Kunci PIN dan privasi
+- Tebakan PIN diserialkan (tidak ada tebakan paralel yang melewati batas percobaan).
+- Saat PIN aktif: isi notifikasi dibuat umum (judul tugas tidak muncul di layar kunci), widget tidak menampilkan tugas, dan aksi Selesai/Tunda dari notifikasi atau widget menunggu sampai PIN dimasukkan.
+Android
+- Jadwal ulang pengingat tidak lagi tumpang tindih; izin SCHEDULE_EXACT_ALARM dibatasi sampai Android 12L (API 32).
+- Filter ponsel: "Prioritas tinggi" -> "Penting", "Ber-jam" -> "Berjam".
+Tes baru: test/audit.test.js (unit), test/e2e/audit.test.js, test/fuzz.test.js.
+
+Belum diperbaiki (disengaja atau butuh perangkat): subtugas yang induknya dihapus di perangkat lain masih dibuang saat sinkron (mengubahnya menyimpang dari aturan sinkron acuan); penjadwalan ulang pengingat saat zona waktu berubah dan FLAG_SECURE tanpa widget butuh kode Java dan uji di HP; token sinkron ikut cadangan Google (keputusan desain).
+
+## [0.35.0] - 2026-11-07
+
+### Audit dan perbaikan
+- Tes baru `test/fuzz.test.js`: 300 rangkaian x 60 operasi acak (tambah, subtugas, selesai, ubah, hapus, pulihkan, bersihkan, bulk, ekspor-impor) menjaga invarian data (id/uid unik, induk ada, tanpa sub-subtugas, tanpa galat 5xx). Lolos tanpa temuan.
+- Uji tepi UI: judul 240 karakter tanpa spasi, HTML/skrip di judul dan catatan, 300 tugas, lebar 320-768px: tanpa meluap ke samping dan tanpa injeksi.
+- Filter di ponsel: label dipendekkan ("Prioritas tinggi" -> "Penting", "Ber-jam" -> "Berjam") dan jarak dirapatkan, sehingga hampir semuanya muat tanpa terpotong.
+
+## [0.34.2] - 2026-11-06
+
+### Identitas, chip, teks sekunder (dari penilaian ulang)
+- Identitas: font judul khas Bricolage Grotesque (OFL) untuk judul, nama grup, dan angka besar; teks isi tetap Inter. Saat semua tugas hari ini selesai, cincin di kartu sapaan terisi hijau penuh dengan centang besar. Judul tugas selesai bergaris hijau.
+- Chip per tugas dikurangi: pengulangan menyatu dengan chip tanggal (ikon ulang), maksimal satu tag + "+N", ikon catatan pindah kecil di samping judul.
+- Teks sekunder diperbesar (chip 14px, keterangan KPI/kalender/hero 14.5-15px).
+
+## [0.34.1] - 2026-11-06
+
+### Sisa temuan peninjau desain
+- Istilah: "Deadline" -> "Batas waktu", "Tunda" (di panel detail) -> "Jadwalkan ulang". Tombol notifikasi "Tunda 1 jam" tidak diubah.
+- Tanggal dan jam: dua kolom berdampingan dengan tinggi sama, plus teks hasil terbaca di bawahnya (mis. "Kam, 5 Nov, 19:00"). Pemilih tetap bawaan sistem.
+- Chip "Hari ini" memakai warna aksen, tidak lagi kuning seperti prioritas sedang.
+- Chip proyek lebih tinggi dan lega (32px).
+- Kalender Wawasan lebih kecil (sel 28px).
+- Chip "Berikutnya": label di atas, judul penuh sampai 2 baris, tidak terpotong satu baris.
+
+## [0.34.0] - 2026-11-06
+
+### Revisi desain dari 12 peninjau desain simulasi
+- Identitas: warna dasar hijau daun (teal) dan motif "cincin tuntas" (cincin + centang) di logo, layar kosong, dan favicon. Pilihan aksen: Hijau daun, Biru tinta, Merah bata, Cokelat kopi, Arang.
+- Kartu sapaan lebih ringkas: satu chip "Berikutnya" yang bisa digeser, cincin lebih kecil.
+- Keterbacaan: teks sekunder lebih besar dan lebih gelap; prioritas juga dibedakan lewat ketebalan cincin, bukan hanya warna.
+- Filter: pudar di tepi kanan sebagai petunjuk bisa digeser (ponsel).
+- Panel detail: judul tugas panjang membungkus ke beberapa baris; tombol "Tunda" dilipat dalam satu tombol.
+- Wawasan: keadaan kosong yang jelas saat belum ada tugas selesai minggu ini.
+- Mode gelap berlapis (latar, kartu, panel) dengan garis tepi tipis agar kedalaman terlihat.
+- Area ketuk centang diperbesar; audit a11y menyesuaikan isi `<details>` yang tertutup.
+
+## [0.33.2] - 2026-11-05
+
+### Perbaikan dari uji 15 penguji simulasi (6 putaran masing-masing)
+- Mode pilih banyak: mengetuk chip (mis. `@rumah`) di dalam baris tidak lagi berpindah tampilan dan membatalkan pilihan.
+- Dialog "Kunci aplikasi" dan "Pengingat" menutup menu samping saat dibuka. Sebelumnya, setelah membuka kunci dengan PIN, menu tetap terbuka di belakang dan isi aplikasi tetap `inert` sampai menu ditutup manual (kolom tambah tugas tidak bisa dipakai).
+- Dialog Kunci: setelah "Matikan kunci" fokus pindah ke "Selesai" sehingga Esc tetap menutup dialog.
+- Area ketuk: tombol aksi toast ("Urungkan") 22px -> 44px; baris dan kolom subtugas, chip hero, dan chip saran diperbesar di ponsel.
+- Layar sangat sempit (<= 380px): kolom tambah tugas tetap punya ruang mengetik; tombol detail disembunyikan di <= 260px.
+- Tes baru: kunci dibuka dari menu di ponsel (menu tertutup, tambah tugas berfungsi, Esc menutup dialog Kunci).
+
+## [0.33.1] - 2026-11-05
+
+### Daftar tugas bersih
+- Kredit pengembang, lisensi, dan donasi dipindah dari bawah daftar tugas ke dialog "Tentang aplikasi" (tombol di menu samping). Isinya: versi, pengembang, kampus, email, ringkasan GPL-3.0, tautan teks lisensi dan komponen pihak ketiga, serta tombol donasi. Daftar tugas kini tidak lagi mengintip di belakang kolom tambah tugas di ponsel.
+- Dialog menutup menu samping saat dibuka, dan bisa ditutup dengan Esc; fokus kembali ke tombolnya.
+- Teks baru tersedia dalam bahasa Inggris. Tes e2e diperbarui (daftar bebas dari kredit; dialog memuat email, donasi, dan tautan lisensi).
+
+## [0.33.0] - 2026-11-05
+
+### Desain ulang: modern (menggantikan tema "Buku besar")
+- Gaya lama dibuang: judul serif, garis margin buku tulis, ornamen kuningan, sampul sidebar gelap, kotak centang persegi, tab bergaris, cap "terlambat" miring.
+- Font Inter (SIL OFL 1.1, subset Latin, 4 bobot, total 88 KB) menggantikan Carlito + Tuntas Serif (167 KB).
+- Permukaan putih bersudut besar di atas latar sejuk; bayangan tipis; tanpa garis tebal. Menu samping terang dengan penanda menu aktif berupa kartu putih.
+- Daftar tugas: kartu dengan pemisah tipis, centang bulat berwarna prioritas, chip pil lembut (terlambat = merah muda, hari ini = jingga muda, proyek = warna proyek).
+- Filter berupa pil (aktif = tinta pekat), sapaan berupa kartu aksen lembut dengan cincin kemajuan, Wawasan berupa kartu angka, lembar bawah dan dialog bersudut 26px.
+- Warna aksen disegarkan (bawaan biru nila #3d5afe; teal, merah, cokelat, arang tetap bisa dipilih), mode gelap diselaraskan.
+- Kontras teks diukur (WCAG): warna proyek, aksen-di-atas-lembut, dan cincin prioritas disesuaikan; audit aksesibilitas otomatis (nama, kontras, area ketuk 44px) lulus.
+- `50-tema-buku.css`, `60-buku-tulis-lanjutan.css`, `90-buku-besar.css` diganti satu berkas `90-modern.css`; CSS 55 KB -> 50 KB.
+- Kinerja daftar besar (content-visibility) tetap: 5000 tugas, "Semua tugas" ~440 ms (sebelum 0.32.0: 1221 ms).
+
 ## [0.32.0] - 2026-11-04
 
 ### Kinerja (diukur, 5000 tugas, viewport 390x844, Chromium headless tanpa throttle CPU)

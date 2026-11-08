@@ -1,15 +1,9 @@
 /* ===== 0.23: kerapian ===== */
 .wday .dn { text-transform: none; letter-spacing: 0; font-size: 12px; }
 .login-card h2:focus, .login-card h2:focus-visible, .welcome h2:focus { outline: none; }
-.empty { margin-top: 36px; text-align: left; padding-left: 14px; border-left: 3px solid var(--margin); }
-.empty svg { width: 26px; height: 26px; opacity: 1; }
 
 .empty h2 { margin: 8px 0 2px; }
 .welcome { border-left: 0; padding-left: 0; }
-.about-foot { text-align: left; margin: 36px 0 12px; font-size: 12.5px; }
-.about-foot .donate { display: inline-flex; margin: 4px 0 0; width: auto; padding: 8px 0; border: 0; background: transparent; justify-content: flex-start; color: var(--accent); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
-.about-foot a { margin-right: 18px; }
-.about-foot .donate { margin-left: 0; }
 
 /* 0.24: grup, hitungan, kolom teks */
 .group-head { border-bottom: 1px solid var(--rule); }

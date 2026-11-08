@@ -31,3 +31,41 @@ test('widget Java: kompilasi dan perilaku build()', { skip: !have('javac') && 'j
   assert.strictEqual(run.status, 0, run.stdout + run.stderr);
   assert.match(run.stdout, /OK \d+/);
 });
+
+test('tanpa widget: MainActivity minimal + plugin layar aman + penerima zona waktu dikompilasi dan menampilkan notifikasi', { skip: !have('javac') && 'javac tidak tersedia' }, () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'nowidget-'));
+  const main = path.join(tmp, 'android', 'app', 'src', 'main');
+  const pkgDir = path.join(main, 'java', 'io', 'github', 'nashkitwo', 'todo');
+  fs.mkdirSync(pkgDir, { recursive: true });
+  fs.writeFileSync(path.join(pkgDir, 'MainActivity.java'), 'package io.github.nashkitwo.todo;\npublic class MainActivity extends com.getcapacitor.BridgeActivity {}\n');
+  fs.writeFileSync(path.join(main, 'AndroidManifest.xml'), '<manifest><application></application></manifest>');
+  fs.writeFileSync(path.join(tmp, 'android', 'app', 'build.gradle'), 'versionCode 1\nversionName "1"\nandroid { buildTypes { release { minifyEnabled false } } }\n');
+  pa.main(path.join(tmp, 'android'), '0.36.0', { widget: false });
+  const probe = path.join(tmp, 'Probe.java');
+  fs.writeFileSync(probe, `package io.github.nashkitwo.todo;
+import android.content.Intent;
+public class Probe { public static void main(String[] a) throws Exception {
+  new MainActivity(); Class.forName("io.github.nashkitwo.todo.TodoSecurePlugin");
+  Intent in = new Intent(); in.setAction(Intent.ACTION_TIMEZONE_CHANGED);
+  final android.app.NotificationManager nm = new android.app.NotificationManager();
+  final android.content.pm.PackageManager pm = new android.content.pm.PackageManager() { public Intent getLaunchIntentForPackage(String p) { return new Intent(); } };
+  android.content.Context ctx = new android.content.Context() {
+    public String getPackageName() { return "io.github.nashkitwo.todo"; }
+    public android.content.SharedPreferences getSharedPreferences(String n, int m) { return null; }
+    public android.content.pm.PackageManager getPackageManager() { return pm; }
+    public Object getSystemService(String n) { return nm; } };
+  new TodoTimeReceiver().onReceive(ctx, in);
+  if (!android.app.Notification.posted.contains("7001:Zona waktu berubah")) throw new RuntimeException("notifikasi zona waktu tidak diposting: " + android.app.Notification.posted);
+  android.app.Notification.posted.clear();
+  new TodoTimeReceiver().onReceive(ctx, new Intent());
+  if (!android.app.Notification.posted.isEmpty()) throw new RuntimeException("aksi lain tidak boleh memposting");
+  System.out.println("OK 2"); } }
+`);
+  const sources = walk(path.join(main, 'java')).concat(walk(path.join(__dirname, 'android-stubs')).filter(f => f.endsWith('.java')), [probe]);
+  const out = path.join(tmp, 'out');
+  const javac = spawnSync('javac', ['-Xlint:-serial', '-d', out, ...sources], { encoding: 'utf8' });
+  assert.strictEqual(javac.status, 0, javac.stderr);
+  const run = spawnSync('java', ['-cp', out, 'io.github.nashkitwo.todo.Probe'], { encoding: 'utf8' });
+  assert.strictEqual(run.status, 0, run.stdout + run.stderr);
+  assert.match(run.stdout, /OK 2/);
+});

@@ -67,17 +67,23 @@ function buildDrawer(t) {
   const root = $('#drawer');
   root.replaceChildren();
 
-  const titleInput = h('input', { class: 't-input', id: 'f-title', value: t.title, maxlength: '300', 'aria-label': 'Judul tugas',
-    onchange: e => patchTask(t.id, { title: e.target.value }),
-    onkeydown: e => { if (e.key === 'Enter') e.target.blur(); } });
+  const fit = el => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
+  const titleInput = h('textarea', { class: 't-input', id: 'f-title', rows: '1', maxlength: '300', 'aria-label': 'Judul tugas',
+    onchange: e => patchTask(t.id, { title: e.target.value.replace(/\s+/g, ' ').trim() }),
+    oninput: e => fit(e.target),
+    onkeydown: e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } } });
+  titleInput.value = t.title;
+  requestAnimationFrame(() => fit(titleInput));
 
   const prio = h('div', { class: 'seg', id: 'f-prio', role: 'group', 'aria-label': 'Prioritas' },
     [[1, 'Tinggi'], [2, 'Sedang'], [3, 'Rendah']].map(p =>
       h('button', { type: 'button', class: 'p' + p[0], 'aria-pressed': String(t.priority === p[0]), onclick: () => patchTask(t.id, { priority: p[0] }) }, p[1])));
 
   const dateInput = h('input', { class: 'input', id: 'f-deadline', type: 'date', value: t.deadline || '', onchange: e => patchTask(t.id, { deadline: e.target.value || null }) });
-  const timeInput = h('input', { class: 'input', id: 'f-time', type: 'time', value: t.due_time || '', disabled: !t.deadline, 'aria-label': 'Jam deadline',
+  const timeInput = h('input', { class: 'input', id: 'f-time', type: 'time', value: t.due_time || '', disabled: !t.deadline, 'aria-label': 'Jam batas waktu',
     onchange: e => patchTask(t.id, { due_time: e.target.value || null }) });
+  const readoutText = x => x.deadline ? fmtDate(x.deadline) + (x.due_time ? ', ' + x.due_time : '') : T('Belum ada tanggal');
+  const dateReadout = h('p', { class: 'date-readout', id: 'f-readout' }, readoutText(t));
   const quickDates = h('div', { class: 'quick-dates' },
     [['Hari ini', 0], ['Besok', 1], ['Minggu depan', 7]].map(q => h('button', { class: 'btn small', type: 'button', onclick: () => patchTask(t.id, { deadline: addDaysIso(q[1]) }) }, q[0])),
     h('button', { class: 'btn small', id: 'f-clear-date', type: 'button', hidden: !t.deadline, onclick: () => patchTask(t.id, { deadline: null }) }, 'Hapus tanggal'));
@@ -117,10 +123,12 @@ function buildDrawer(t) {
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Tutup panel', onclick: closeDrawer }, icon('x', 18))),
     titleInput,
     field('Prioritas', prio),
-    h('div', { class: 'field' }, h('label', { for: 'f-deadline' }, 'Deadline'), dateInput, timeInput, quickDates),
-    field('Tunda', h('div', { class: 'snooze', id: 'f-snooze' },
-      [['hour', '+1 jam'], ['evening', 'Sore ini'], ['tomorrow', 'Besok'], ['nextweek', 'Minggu depan']].map(q =>
-        h('button', { class: 'btn small', type: 'button', 'data-snooze': q[0], disabled: t.done, onclick: () => snooze(taskById(t.id) || t, q[0]) }, icon('clock', 12), q[1])))),
+    h('div', { class: 'field' }, h('label', { for: 'f-deadline' }, 'Batas waktu'), h('div', { class: 'det-row' }, dateInput, timeInput), dateReadout, quickDates),
+    h('details', { class: 'snooze-box', open: false },
+      h('summary', {}, icon('clock', 14), 'Jadwalkan ulang'),
+      h('div', { class: 'snooze', id: 'f-snooze' },
+        [['hour', '+1 jam'], ['evening', 'Sore ini'], ['tomorrow', 'Besok'], ['nextweek', 'Minggu depan']].map(q =>
+          h('button', { class: 'btn small', type: 'button', 'data-snooze': q[0], disabled: t.done, onclick: () => snooze(taskById(t.id) || t, q[0]) }, icon('clock', 12), q[1])))),
     h('div', { class: 'two' },
       field('Proyek', h('div', {}, projectInput, projectList), 'f-project'),
       field('Ulangi', DRC.el, 'f-repeat')),
@@ -145,6 +153,7 @@ function syncDrawer() {
   if (idle($('#f-deadline'))) $('#f-deadline').value = t.deadline || '';
   if (idle($('#f-time'))) $('#f-time').value = t.due_time || '';
   $('#f-time').disabled = !t.deadline;
+  if ($('#f-readout')) $('#f-readout').textContent = t.deadline ? fmtDate(t.deadline) + (t.due_time ? ', ' + t.due_time : '') : T('Belum ada tanggal');
   if (idle($('#f-project'))) $('#f-project').value = t.project || '';
   if (idle($('#f-tags'))) $('#f-tags').value = t.tags.join(', ');
   if (idle($('#f-notes'))) $('#f-notes').value = t.notes;

@@ -61,18 +61,19 @@ function taskRow(t) {
   if (t.deadline && !t.done) {
     const d = diffDays(t.deadline);
     const late = d < 0 || (d === 0 && t.due_time && t.due_time < nowHHMM());
-    chips.push(chip(relLabel(t.deadline) + (t.due_time ? ' ' + t.due_time : ''), late ? 'overdue' : d === 0 ? 'today' : d <= 2 ? 'soon' : '', 'calendar'));
+    chips.push(chip(relLabel(t.deadline) + (t.due_time ? ' ' + t.due_time : ''), late ? 'overdue' : d === 0 ? 'today' : d <= 2 ? 'soon' : '', t.repeat ? 'repeat' : 'calendar', null, t.repeat ? ruleLabel(t.repeat) : undefined));
   }
   if (t.project) chips.push(chip('@' + t.project, 'project plain ' + projectClass(t.project), null, e => { e.stopPropagation(); selectProject(t.project); }, 'Lihat proyek'));
-  for (const g of t.tags) chips.push(chip('#' + g, 'plain', null, e => { e.stopPropagation(); selectTag(g); }, 'Lihat tag'));
-  if (t.repeat) chips.push(chip(ruleLabel(t.repeat, true), '', 'repeat', null, ruleLabel(t.repeat)));
+  /* Paling banyak satu tag di baris; sisanya "+N" (semua tag ada di panel detail). Pengulangan menyatu dengan chip tanggal. */
+  t.tags.slice(0, 1).forEach(g => chips.push(chip('#' + g, 'plain', null, e => { e.stopPropagation(); selectTag(g); }, 'Lihat tag')));
+  if (t.tags.length > 1) chips.push(chip('+' + (t.tags.length - 1), 'plain more', null, null, t.tags.slice(1).map(g => '#' + g).join(' ')));
+  if (t.repeat && !(t.deadline && !t.done)) chips.push(chip(ruleLabel(t.repeat, true), '', 'repeat', null, ruleLabel(t.repeat)));
   const open = ui.expanded.has(t.id);
   if (t.sub_total) {
     const c = chip(t.sub_done + '/' + t.sub_total, 'subtoggle', 'chevron', e => { e.stopPropagation(); toggleSubs(t.id); }, open ? 'Sembunyikan subtugas' : 'Tampilkan subtugas');
     c.setAttribute('aria-expanded', String(open));
     chips.push(c);
   }
-  if (t.notes) chips.push(chip('', '', 'note', null, 'Ada catatan'));
   const row = h('div', {
       class: 'row' + (t.done ? ' done' : '') + (ui.openId === t.id ? ' selected' : '') + (ui.newIds.has(t.id) && motionOK() ? ' enter' : '') + (ui.picked.has(t.id) ? ' picked' : ''),
       tabindex: '0', 'data-id': t.id, role: 'group', 'aria-label': t.done ? T('{title} (selesai)', { title: t.title }) : raw(t.title),
@@ -84,7 +85,7 @@ function taskRow(t) {
     h('div', { class: 'row-body' },
       h('span', { class: 'pick', 'aria-hidden': 'true' }, icon('check', 14)),
       checkButton(t, true),
-      h('div', { class: 'row-main' }, h('div', { class: 'title' }, raw(t.title)), h('div', { class: 'meta' }, chips),
+      h('div', { class: 'row-main' }, h('div', { class: 'title' }, raw(t.title), t.notes ? h('span', { class: 'has-note', title: T('Ada catatan'), role: 'img', 'aria-label': T('Ada catatan') }, icon('note', 13)) : null), h('div', { class: 'meta' }, chips),
         t.sub_total ? h('div', { class: 'mini', role: 'progressbar', 'aria-valuenow': t.sub_done, 'aria-valuemax': t.sub_total, 'aria-label': 'Progres subtugas' },
           h('span', { style: { width: Math.round(t.sub_done / t.sub_total * 100) + '%' } })) : null,
         open ? inlineSubs(t, subs) : null)));
@@ -259,7 +260,7 @@ function emptyState(key, text) {
   const acts = [];
   if (key === 'today' || key === 'all' || key === 'upcoming' || key === 'calendar') acts.push(h('button', { class: 'btn primary', type: 'button', id: 'empty-write', onclick: focusQuick }, 'Tulis tugas'));
   if (key === 'today' && state.tasks.some(t => !t.done && t.parent_id === null)) acts.push(h('button', { class: 'btn', type: 'button', id: 'empty-upcoming', onclick: () => selectView('upcoming') }, 'Lihat tugas mendatang'));
-  return h('div', { class: 'empty' }, icon('sparkle', 40), h('h2', {}, text[0]), h('p', {}, text[1]), acts.length ? h('div', { class: 'empty-actions' }, acts) : null);
+  return h('div', { class: 'empty' }, icon('tuntas', 40), h('h2', {}, text[0]), h('p', {}, text[1]), acts.length ? h('div', { class: 'empty-actions' }, acts) : null);
 }
 function renderListInner(root) {
   root.replaceChildren();

@@ -27,11 +27,24 @@
       let raw = null;
       try { raw = localStorage.getItem(KEY); } catch (e) { return null; }
       if (raw === null) return null;
-      try { const o = JSON.parse(raw); if (looksValid(o)) return o; } catch (e) { /* rusak */ }
-      try { if (localStorage.getItem(CORRUPT_KEY) === null) localStorage.setItem(CORRUPT_KEY, raw); } catch (e) { /* penuh: abaikan */ }
+      let parsed = null;
+      try { parsed = JSON.parse(raw); } catch (e) { /* rusak */ }
+      if (looksValid(parsed)) return parsed;
+      // Satu baris cacat tidak boleh membuang seluruh daftar: simpan baris yang sehat, salinan mentah tetap diamankan.
+      if (parsed && typeof parsed === 'object' && Array.isArray(parsed.tasks)) {
+        const good = parsed.tasks.filter(t => t && typeof t === 'object' && Number.isInteger(t.id) && typeof t.title === 'string');
+        if (good.length) {
+          try { if (localStorage.getItem(CORRUPT_KEY) === null) localStorage.setItem(CORRUPT_KEY, raw); } catch (e) { /* penuh */ }
+          return Object.assign({}, parsed, { tasks: good });
+        }
+      }
+      let saved = false;
+      try { if (localStorage.getItem(CORRUPT_KEY) === null) localStorage.setItem(CORRUPT_KEY, raw); saved = localStorage.getItem(CORRUPT_KEY) !== null; } catch (e) { /* penuh: abaikan */ }
+      if (!saved) persist.blocked = true; // salinan mentah tak bisa diamankan: jangan menimpa data asli dengan data kosong
       return null;
     },
     save(obj) {
+      if (persist.blocked) throw new Error('Data lama rusak dan salinannya belum bisa diamankan (penyimpanan penuh). Kosongkan ruang lalu buka ulang aplikasi.');
       try { localStorage.setItem(KEY, JSON.stringify(obj)); }
       catch (e) { throw new Error('Penyimpanan di perangkat gagal (penuh atau diblokir).'); }
     },
@@ -163,7 +176,10 @@
       console.error('Aksi notifikasi gagal disiapkan: ' + (e && e.message));
     }
   }
+  const lockOn = () => !!(window.TodoLock && window.TodoLock.enabled());
   async function onNotificationAction(ev) {
+    // Aplikasi terkunci PIN: aksi (Selesai/Tunda) ditahan sampai PIN dimasukkan, bukan langsung mengubah data.
+    if (window.TodoLock && window.TodoLock.locked()) { window.TodoLock.afterUnlock(() => onNotificationAction(ev)); return; }
     try {
       if (ev && ev.actionId === 'tomorrow') {
         await window.todoMoveRemaining();
@@ -243,17 +259,33 @@
       });
       if (!plan.length) return;
       await setupNotificationActions();
-      await LN.schedule({ notifications: plan.map(withActions) });
+      // PIN aktif: layar kunci tidak boleh membocorkan judul tugas, jadi isi notifikasi dibuat umum.
+      const privacy = n => lockOn() ? Object.assign({}, n, { title: 'Tuntas Harian', body: window.T ? window.T('Ada tugas yang perlu dilihat.') : 'Ada tugas yang perlu dilihat.' }) : n;
+      await LN.schedule({ notifications: plan.map(withActions).map(privacy) });
     } catch (e) {
       console.error('Gagal menjadwalkan notifikasi: ' + (e && e.message));
     }
   }
   function scheduleSoon() { clearTimeout(timer); timer = setTimeout(afterChange, 400); }
+  let afterRunning = false, afterAgain = false;
   async function afterChange() {
-    for (const job of [reschedule, pushWidget, maybeSnapshot]) {
-      try { await job(); } catch (e) { console.error('Tugas latar gagal: ' + (e && e.message)); }
-    }
+    if (afterRunning) { afterAgain = true; return; } // jadwal ulang tidak boleh tumpang tindih (saling membatalkan)
+    afterRunning = true;
+    try {
+      do {
+        afterAgain = false;
+        for (const job of [reschedule, pushWidget, maybeSnapshot]) {
+          try { await job(); } catch (e) { console.error('Tugas latar gagal: ' + (e && e.message)); }
+        }
+      } while (afterAgain);
+    } finally { afterRunning = false; }
   }
+  /* Zona waktu berubah saat aplikasi terbuka/kembali dibuka: waktu pengingat dihitung dari jam dinding, jadi jadwal dihitung ulang. */
+  let lastOffset = new Date().getTimezoneOffset();
+  const checkZone = () => { const o = new Date().getTimezoneOffset(); if (o !== lastOffset) { lastOffset = o; scheduleSoon(); } };
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkZone(); });
+  setInterval(checkZone, 60000);
+  window.addEventListener('todo-lock-changed', () => { lastWidget = null; scheduleSoon(); });
 
   /* ---------- widget layar utama (Android) ---------- */
   let widgetPlugin, lastWidget = null;
@@ -269,7 +301,7 @@
     if (!isNative()) return;
     const W = widgetBridge();
     if (!W || typeof W.update !== 'function') return;
-    const items = JSON.stringify(store.widgetItems());
+    const items = JSON.stringify(lockOn() ? [] : store.widgetItems()); // PIN aktif: widget tidak menampilkan judul
     if (items === lastWidget) return;
     await W.update({ items });
     lastWidget = items;
@@ -280,6 +312,7 @@
     if (!isNative()) return;
     const W = widgetBridge();
     if (!W) return;
+    if (window.TodoLock && window.TodoLock.locked()) { window.TodoLock.afterUnlock(applyWidgetActions); return; } // tunggu PIN
     try {
       if (typeof W.completed === 'function') {
         const res = await W.completed();
@@ -319,7 +352,8 @@
     const f = store.syncFile('snapshot');
     const r = core.rotateSnapshots(loadSnaps(), { tasks: f.tasks, deleted: f.deleted }, store.clock.now(), 7);
     if (!r.created) return;
-    lsSet(SNAP_KEY, r.list);
+    let list = r.list;
+    while (!lsSet(SNAP_KEY, list) && list.length > 1) list = list.slice(1); // kuota penuh: buang salinan terlama, jangan gagal diam-diam
     await writeDocuments(true);
   }
 
@@ -342,7 +376,52 @@
   }
 
   /* ---------- sinkron otomatis (GitHub Gist) ---------- */
-  const loadCfg = () => { const c = lsGet(AUTO_KEY); return c && c.token ? c : null; };
+  /* Token dan kata sandi sinkron disimpan di penyimpanan native Android (SharedPreferences todo_secrets) yang DIKECUALIKAN dari cadangan
+   * Google/adb, sehingga tidak ikut keluar dari HP. Tanpa plugin (peramban, build lama) tetap di localStorage seperti sebelumnya. */
+  let secretCache = null, secretPluginRef;
+  const secretPlugin = () => {
+    if (secretPluginRef !== undefined) return secretPluginRef;
+    let p = plugin('TodoSecure');
+    if (!p && window.Capacitor && typeof window.Capacitor.registerPlugin === 'function' && isNative()) { try { p = window.Capacitor.registerPlugin('TodoSecure'); } catch (e) { p = null; } }
+    return (secretPluginRef = p && typeof p.secretGet === 'function' ? p : null);
+  };
+  const loadCfg = () => {
+    const c = lsGet(AUTO_KEY);
+    if (!c) return null;
+    if (c.secure && secretCache && secretCache.token) return Object.assign({}, c, { token: secretCache.token, passphrase: secretCache.passphrase });
+    return c.token ? c : null; // belum dimuat dari native, atau cfg lama/tanpa plugin
+  };
+  async function storeCfg(cfg) {
+    const sp = secretPlugin();
+    const pub = Object.assign({}, cfg);
+    if (sp && cfg.token) {
+      try {
+        await sp.secretSet({ key: 'token', value: cfg.token });
+        await sp.secretSet({ key: 'passphrase', value: cfg.passphrase || '' });
+        const back = await sp.secretGet({ key: 'token' });
+        if (back && back.value === cfg.token) { secretCache = { token: cfg.token, passphrase: cfg.passphrase || '' }; delete pub.token; delete pub.passphrase; pub.secure = true; }
+      } catch (e) { /* gagal: tetap di localStorage agar sinkron tidak putus */ }
+    }
+    return lsSet(AUTO_KEY, pub);
+  }
+  async function clearCfg() {
+    const sp = secretPlugin();
+    secretCache = null;
+    try { localStorage.removeItem(AUTO_KEY); } catch (e) { /* abaikan */ }
+    if (sp) { try { await sp.secretRemove({ key: 'token' }); await sp.secretRemove({ key: 'passphrase' }); } catch (e) { /* abaikan */ } }
+  }
+  /* Saat start: muat rahasia dari native; bila token lama masih di localStorage, pindahkan (migrasi sekali). */
+  async function initSecrets() {
+    const sp = secretPlugin();
+    const c = lsGet(AUTO_KEY);
+    if (!sp || !c) return;
+    try {
+      if (c.secure) {
+        const t = await sp.secretGet({ key: 'token' }), p = await sp.secretGet({ key: 'passphrase' });
+        if (t && t.value) secretCache = { token: t.value, passphrase: (p && p.value) || '' };
+      } else if (c.token) await storeCfg(c);
+    } catch (e) { /* tetap berjalan dengan yang ada */ }
+  }
   let syncing = false, again = false, autoTimer = null, onAutoStatus = () => {};
   function autoSyncSoon(ms) { if (!loadCfg()) return; clearTimeout(autoTimer); autoTimer = setTimeout(autoSyncNow, ms == null ? 4000 : ms); }
   async function autoSyncNow() {
@@ -352,7 +431,7 @@
     syncing = true;
     try {
       const r = await window.TodoAutoSync.run(store, cfg, window.fetch.bind(window));
-      if (r.gistId !== cfg.gistId) lsSet(AUTO_KEY, Object.assign({}, cfg, { gistId: r.gistId }));
+      if (r.gistId !== cfg.gistId) await storeCfg(Object.assign({}, cfg, { gistId: r.gistId }));
       const d = r.summary;
       status.auto = { ok: true, at: hhmm(new Date()), summary: d, pushed: r.pushed };
       if (d.added || d.updated || d.deleted) {
@@ -382,7 +461,12 @@
   };
 
   window.todoLocalApi = async function (method, path, body) {
-    const result = core.handle(store, method, path, body === undefined ? {} : clone(body));
+    const mutating = method !== 'GET';
+    const before = mutating ? store.snapshotState() : null;
+    let result;
+    try { result = core.handle(store, method, path, body === undefined ? {} : clone(body)); }
+    catch (e) { if (mutating) store.restoreState(before); throw e; } // gagal menyimpan: layar kembali ke data yang benar-benar tersimpan
+    if (result.status >= 400 && mutating) store.restoreState(before); // perubahan setengah jalan tidak boleh tersisa
     if (result.status >= 400) throw new Error((result.body && result.body.error) || ('Kesalahan ' + result.status));
     if (method !== 'GET') { scheduleSoon(); autoSyncSoon(); }
     return clone(result.body);
@@ -426,17 +510,6 @@
   }
 
   const aboutText = () => 'Tuntas Harian v' + (window.TODO_VERSION || '') + ' · ' + T('Pendiri dan Pengembang: Muhammad Ikhsan') + ', ' + T('Teknik Informatika, Universitas Pamulang') + ', ican3192@gmail.com';
-  function buildAbout() {
-    const foot = document.getElementById('about-foot');
-    if (!foot) return;
-    foot.append(el('div', { class: 'about-title' }, 'Tuntas Harian v' + (window.TODO_VERSION || '')),
-      el('div', {}, 'Pendiri dan Pengembang: Muhammad Ikhsan'),
-      el('div', {}, 'Teknik Informatika, Universitas Pamulang'),
-      el('div', { class: 'about-copy' }, '\u00a9 2026 Muhammad Ikhsan \u00b7 GPL-3.0'),
-      el('a', { href: 'mailto:ican3192@gmail.com' }, 'ican3192@gmail.com'),
-      el('a', { class: 'donate', id: 'donate-link', href: 'https://sociabuzz.com/nacitwo/tribe', target: '_blank', rel: 'noopener noreferrer' }, '\u2665 ' + T('Dukung pengembang (donasi)')));
-  }
-
   function buildBackupUi() {
     const msg = el('div', { class: 'login-err', id: 'backup-msg', role: 'status' });
     const text = el('textarea', { class: 'input', id: 'backup-text', rows: '6', 'aria-label': 'Teks cadangan', placeholder: 'Tempel teks cadangan di sini untuk memulihkan…' });
@@ -551,7 +624,7 @@
       if (!value) { sayAuto('Isi token dulu.', true); return; }
       if (secret.length < 8) { sayAuto('Kata sandi sinkron minimal 8 karakter.', true); return; }
       if (!window.confirm('Data tugas dienkripsi dengan kata sandi ini di HP, lalu dikirim ke gist rahasia di akun GitHub Anda. Token dan kata sandi disimpan hanya di HP ini. LUPA kata sandi = data di gist tidak bisa dibuka (data di HP tetap aman). Lanjutkan?')) return;
-      lsSet(AUTO_KEY, { token: value, passphrase: secret, deviceId: randomHex(4) });
+      await storeCfg({ token: value, passphrase: secret, deviceId: randomHex(4) });
       token.value = ''; pass.value = '';
       status.auto = null; sayAuto('Menyambungkan…'); renderAuto();
       await autoSyncNow();
@@ -559,7 +632,7 @@
     const autoNow = el('button', { class: 'btn primary', type: 'button', id: 'auto-now', onclick: () => { sayAuto('Menyinkronkan…'); autoSyncNow(); } }, 'Sinkron sekarang');
     const autoOff = el('button', { class: 'btn', type: 'button', id: 'auto-off', onclick: () => {
       if (!window.confirm('Matikan sinkron otomatis di HP ini? Token dan kata sandi dihapus dari HP; gist di GitHub tidak dihapus.')) return;
-      try { localStorage.removeItem(AUTO_KEY); } catch (e) { /* abaikan */ }
+      clearCfg();
       status.auto = null; saveStatus(); sayAuto(''); renderAuto();
     } }, 'Matikan');
     const autoReset = el('button', { class: 'btn', type: 'button', id: 'auto-reset', onclick: async () => {
@@ -600,7 +673,7 @@
         el('p', { class: 'sub' }, 'Lewat berkas: simpan di Drive/Dropbox, lalu gabungkan dari perangkat lain. Versi yang lebih baru menang; tugas yang dihapus ikut terhapus. Pakai jam yang benar di semua perangkat.'),
         syncSend, syncMerge, picker, syncMsg,
         el('h3', {}, 'Sinkron otomatis'),
-        el('p', { class: 'sub', id: 'auto-secret-note' }, 'Token dan kata sandi disimpan di HP ini tanpa enkripsi tambahan dan bisa ikut cadangan otomatis Android (Google). Jika HP hilang atau berpindah tangan, cabut token di GitHub (Settings > Developer settings > Tokens).'),
+        el('p', { class: 'sub', id: 'auto-secret-note' }, 'Token dan kata sandi disimpan di penyimpanan privat aplikasi di HP ini tanpa enkripsi tambahan, dan tidak ikut cadangan Google. Jika HP hilang atau berpindah tangan, cabut token di GitHub (Settings > Developer settings > Tokens).'),
         el('p', { class: 'sub' }, 'Opsional. Memakai gist rahasia di akun GitHub Anda: buat token klasik dengan izin "gist" saja, lalu tentukan kata sandi sinkron. Di perangkat lain isi token dan kata sandi yang sama. Isi tugas dienkripsi di HP sebelum dikirim, jadi tidak terbaca di GitHub; token dan kata sandi hanya disimpan di HP ini.'),
         token, pass, autoOn, autoNow, autoOff, autoReset, autoMsg,
         el('p', { class: 'sub', id: 'about' }, aboutText()),
@@ -623,11 +696,10 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     buildBackupUi();
-    buildAbout();
     setupNotificationActions();
     setupBackButton();
     applyWidgetActions().then(scheduleSoon);
-    autoSyncSoon(800);
+    initSecrets().then(() => autoSyncSoon(800));
     setInterval(() => { if (!document.hidden) autoSyncSoon(0); }, 300000);
   });
   document.addEventListener('visibilitychange', () => {

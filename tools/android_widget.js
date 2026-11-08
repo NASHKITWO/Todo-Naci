@@ -342,6 +342,127 @@ public class TodoWidgetPlugin extends Plugin {
 }
 `;
 
+/* Plugin kecil TERPISAH dari widget: FLAG_SECURE (blokir screenshot/pratinjau saat PIN aktif) tetap ada walau widget dimatikan (--no-widget). */
+const SECURE_PLUGIN = `package __PKG__;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import com.getcapacitor.JSObject;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+
+/** FLAG_SECURE + penyimpanan rahasia sinkron (token GitHub, kata sandi). Berkas SharedPreferences "todo_secrets" DIKECUALIKAN dari
+ *  cadangan Google dan transfer perangkat (res/xml/todo_backup_rules.xml), jadi rahasia tidak ikut keluar dari HP. */
+@CapacitorPlugin(name = "TodoSecure")
+public class TodoSecurePlugin extends Plugin {
+    static final String SECRETS = "todo_secrets";
+
+    private SharedPreferences prefs() {
+        return getContext().getSharedPreferences(SECRETS, Context.MODE_PRIVATE);
+    }
+
+    private static boolean badKey(String k) {
+        return k == null || k.isEmpty() || k.length() > 32;
+    }
+
+    @PluginMethod
+    public void secretSet(PluginCall call) {
+        String k = call.getString("key", null);
+        String v = call.getString("value", "");
+        if (badKey(k)) { call.reject("kunci tidak valid"); return; }
+        prefs().edit().putString(k, v == null ? "" : v).apply();
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void secretGet(PluginCall call) {
+        String k = call.getString("key", null);
+        if (badKey(k)) { call.reject("kunci tidak valid"); return; }
+        JSObject out = new JSObject();
+        out.put("value", prefs().getString(k, ""));
+        call.resolve(out);
+    }
+
+    @PluginMethod
+    public void secretRemove(PluginCall call) {
+        String k = call.getString("key", null);
+        if (badKey(k)) { call.reject("kunci tidak valid"); return; }
+        prefs().edit().remove(k).apply();
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void secure(PluginCall call) {
+        final boolean on = Boolean.TRUE.equals(call.getBoolean("on", Boolean.FALSE));
+        final android.app.Activity a = getActivity();
+        if (a != null) {
+            a.runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    try {
+                        if (on) a.getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE);
+                        else a.getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE);
+                    } catch (RuntimeException e) {
+                        // best effort
+                    }
+                }
+            });
+        }
+        call.resolve();
+    }
+}
+`;
+
+/* Zona waktu berubah: pengingat sudah dijadwalkan sebagai waktu mutlak dari zona lama, jadi bisa berbunyi di jam yang salah.
+ * Aplikasi menghitung ulang jadwal saat dibuka; penerima ini hanya mengingatkan pengguna untuk membukanya. */
+const TIME_RECEIVER = `package __PKG__;
+
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+
+public class TodoTimeReceiver extends BroadcastReceiver {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (intent == null || !Intent.ACTION_TIMEZONE_CHANGED.equals(intent.getAction())) return;
+        try {
+            NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null) return;
+            if (Build.VERSION.SDK_INT >= 26) nm.createNotificationChannel(new NotificationChannel("todo_tz", "Zona waktu", NotificationManager.IMPORTANCE_DEFAULT));
+            Intent launch = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+            PendingIntent open = launch == null ? null : PendingIntent.getActivity(context, 7001, launch, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(context, "todo_tz") : new Notification.Builder(context);
+            b.setSmallIcon(context.getApplicationInfo().icon).setContentTitle("Zona waktu berubah")
+                .setContentText("Buka Tuntas Harian agar jam pengingat disesuaikan.").setAutoCancel(true);
+            if (open != null) b.setContentIntent(open);
+            nm.notify(7001, b.build());
+        } catch (RuntimeException e) {
+            // best effort: tanpa izin notifikasi, aplikasi tetap menghitung ulang saat dibuka
+        }
+    }
+}
+`;
+
+const ACTIVITY_MIN = `package __PKG__;
+
+import android.os.Bundle;
+import com.getcapacitor.BridgeActivity;
+
+public class MainActivity extends BridgeActivity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(TodoSecurePlugin.class);
+        super.onCreate(savedInstanceState);
+    }
+}
+`;
+
 const ACTIVITY = `package __PKG__;
 
 import android.content.Intent;
@@ -352,6 +473,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(TodoWidgetPlugin.class);
+        registerPlugin(TodoSecurePlugin.class);
         super.onCreate(savedInstanceState);
         handleWidgetIntent(getIntent());
     }
@@ -502,6 +624,22 @@ const INFO = `<?xml version="1.0" encoding="utf-8"?>
     android:widgetCategory="home_screen" />
 `;
 
+const BACKUP_RULES = `<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <exclude domain="sharedpref" path="todo_secrets.xml" />
+</full-backup-content>
+`;
+const EXTRACTION_RULES = `<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="todo_secrets.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="todo_secrets.xml" />
+    </device-transfer>
+</data-extraction-rules>
+`;
+
 /* Daftar berkas relatif ke app/src/main/. */
 function files(pkg) {
   const dir = 'java/' + pkg.replace(/\./g, '/') + '/';
@@ -509,14 +647,38 @@ function files(pkg) {
   return [
     { path: dir + 'TodoWidgetProvider.java', content: sub(PROVIDER) },
     { path: dir + 'TodoWidgetPlugin.java', content: sub(PLUGIN) },
+    { path: dir + 'TodoSecurePlugin.java', content: sub(SECURE_PLUGIN) },
+    { path: dir + 'TodoTimeReceiver.java', content: sub(TIME_RECEIVER) },
     { path: dir + 'MainActivity.java', content: sub(ACTIVITY), overwrite: true },
     { path: 'res/layout/widget_todo.xml', content: LAYOUT },
     { path: 'res/drawable/widget_bg.xml', content: BACKGROUND },
     { path: 'res/values/widget_colors.xml', content: COLORS_LIGHT },
     { path: 'res/values-night/widget_colors.xml', content: COLORS_DARK },
     { path: 'res/xml/todo_widget_info.xml', content: INFO },
+    { path: 'res/xml/todo_backup_rules.xml', content: BACKUP_RULES },
+    { path: 'res/xml/todo_data_extraction_rules.xml', content: EXTRACTION_RULES },
   ];
 }
+
+/* Tanpa widget (--no-widget): hanya plugin layar aman, penerima zona waktu, dan MainActivity minimal. */
+function minimalFiles(pkg) {
+  const dir = 'java/' + pkg.replace(/\./g, '/') + '/';
+  const sub = s => s.replace(/__PKG__/g, pkg);
+  return [
+    { path: dir + 'TodoSecurePlugin.java', content: sub(SECURE_PLUGIN) },
+    { path: dir + 'TodoTimeReceiver.java', content: sub(TIME_RECEIVER) },
+    { path: dir + 'MainActivity.java', content: sub(ACTIVITY_MIN), overwrite: true },
+    { path: 'res/xml/todo_backup_rules.xml', content: BACKUP_RULES },
+    { path: 'res/xml/todo_data_extraction_rules.xml', content: EXTRACTION_RULES },
+  ];
+}
+
+const timeReceiver = pkg => `        <receiver android:name="${pkg}.TodoTimeReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+`;
 
 const receiver = pkg => `        <receiver android:name="${pkg}.TodoWidgetProvider" android:exported="true">
             <intent-filter>
@@ -533,4 +695,4 @@ const SHARE_FILTER = `            <intent-filter>
             </intent-filter>
 `;
 
-module.exports = { files, receiver, SHARE_FILTER, ROWS };
+module.exports = { files, minimalFiles, timeReceiver, receiver, SHARE_FILTER, ROWS };
