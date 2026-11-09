@@ -8,6 +8,10 @@ on:
         description: "Sertakan widget layar utama (matikan bila build gagal di bagian widget)"
         type: boolean
         default: true
+      release:
+        description: "Buat tag dan rilis GitHub dari versi di package.json, lampirkan APK"
+        type: boolean
+        default: false
   push:
     tags: ["v*"]
 
@@ -83,16 +87,16 @@ jobs:
           name: todo-apk
           path: android/app/build/outputs/apk/*/*.apk
           if-no-files-found: error
-      - name: Lampirkan APK ke rilis GitHub (hanya saat tag v*)
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Lampirkan APK ke rilis GitHub (tag v* atau input release)
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
         run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then TAG="${GITHUB_REF_NAME}"; else TAG="v$(node -p "require('./package.json').version")"; fi
           APK=$(ls android/app/build/outputs/apk/*/*.apk | head -n 1)
           cp "$APK" "tuntas-harian-$TAG.apk"
           VER="${TAG#v}"
-          awk -v v="## [$VER]" 'index($0, v)==1{f=1;next} /^## \[/{if(f)exit} f' CHANGELOG.md > notes.md
+          awk -v v="## [$VER]" 'index($0, v)==1{f=1;next} /^## \\[/{if(f)exit} f' CHANGELOG.md > notes.md
           [ -s notes.md ] || echo "Rilis $TAG" > notes.md
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "Tuntas Harian $TAG" --notes-file notes.md
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "${GITHUB_SHA}" --title "Tuntas Harian $TAG" --notes-file notes.md
           gh release upload "$TAG" "tuntas-harian-$TAG.apk" --clobber
