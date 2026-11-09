@@ -96,7 +96,7 @@ jobs:
           APK=$(ls android/app/build/outputs/apk/*/*.apk | head -n 1)
           cp "$APK" "tuntas-harian-$TAG.apk"
           VER="${TAG#v}"
-          awk -v v="## [$VER]" 'index($0, v)==1{f=1;next} /^## \\[/{if(f)exit} f' CHANGELOG.md > notes.md
+          awk -v v="## [$VER]" 'index($0, v)==1{f=1;next} /^## \[/{if(f)exit} f' CHANGELOG.md > notes.md
           [ -s notes.md ] || echo "Rilis $TAG" > notes.md
           gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "${GITHUB_SHA}" --title "Tuntas Harian $TAG" --notes-file notes.md
           gh release upload "$TAG" "tuntas-harian-$TAG.apk" --clobber
