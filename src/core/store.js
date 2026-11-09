@@ -14,7 +14,10 @@ class Store {
   constructor(persist, clock) {
     this.persist = persist || { load: () => null, save: () => {} };
     this.clock = clock || { today: todayIso, now: nowIso };
-    const data = this.persist.load();
+    this.init(this.persist.load());
+  }
+  /* Isi keadaan dari data tersimpan (juga dipakai ulang saat data terenkripsi baru terbuka). */
+  init(data) {
     this.tasks = data && Array.isArray(data.tasks) ? data.tasks : [];
     this.tombs = data && Array.isArray(data.tombs) ? data.tombs : [];
     for (const t of this.tasks) { // data dari versi lama: beri identitas sinkron

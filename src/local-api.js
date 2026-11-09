@@ -15,6 +15,9 @@
   const SNAP_KEY = 'todo-cli.snapshots', AUTO_KEY = 'todo-cli.autosync', STATUS_KEY = 'todo-cli.status';
   const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
   const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
+  /* Kunci data (tugas, snapshot, salinan rusak) lewat TodoVault: localStorage biasa, atau blob terenkripsi bila enkripsi PIN aktif. */
+  const V = window.TodoVault || { enabled: () => false, ready: () => true, get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }, del: k => { try { localStorage.removeItem(k); } catch (e) { /* abaikan */ } }, failed: () => false, onUnlock() {}, onEnable() {} };
+  const vReady = () => V.ready();
   const pad2 = n => String(n).padStart(2, '0');
   const hhmm = d => pad2(d.getHours()) + ':' + pad2(d.getMinutes());
 
@@ -25,7 +28,8 @@
   const persist = {
     load() {
       let raw = null;
-      try { raw = localStorage.getItem(KEY); } catch (e) { return null; }
+      if (!vReady()) return null; // data terenkripsi belum dibuka
+      raw = V.get(KEY);
       if (raw === null) return null;
       let parsed = null;
       try { parsed = JSON.parse(raw); } catch (e) { /* rusak */ }
@@ -34,19 +38,21 @@
       if (parsed && typeof parsed === 'object' && Array.isArray(parsed.tasks)) {
         const good = parsed.tasks.filter(t => t && typeof t === 'object' && Number.isInteger(t.id) && typeof t.title === 'string');
         if (good.length) {
-          try { if (localStorage.getItem(CORRUPT_KEY) === null) localStorage.setItem(CORRUPT_KEY, raw); } catch (e) { /* penuh */ }
+          if (V.get(CORRUPT_KEY) === null) V.set(CORRUPT_KEY, raw);
           return Object.assign({}, parsed, { tasks: good });
         }
       }
       let saved = false;
-      try { if (localStorage.getItem(CORRUPT_KEY) === null) localStorage.setItem(CORRUPT_KEY, raw); saved = localStorage.getItem(CORRUPT_KEY) !== null; } catch (e) { /* penuh: abaikan */ }
+      if (V.get(CORRUPT_KEY) === null) V.set(CORRUPT_KEY, raw);
+      saved = V.get(CORRUPT_KEY) !== null;
       if (!saved) persist.blocked = true; // salinan mentah tak bisa diamankan: jangan menimpa data asli dengan data kosong
       return null;
     },
     save(obj) {
       if (persist.blocked) throw new Error('Data lama rusak dan salinannya belum bisa diamankan (penyimpanan penuh). Kosongkan ruang lalu buka ulang aplikasi.');
-      try { localStorage.setItem(KEY, JSON.stringify(obj)); }
-      catch (e) { throw new Error('Penyimpanan di perangkat gagal (penuh atau diblokir).'); }
+      if (!vReady()) throw new Error('Data terkunci. Buka dengan PIN dulu.');
+      if (V.enabled() && V.failed()) throw new Error('Penyimpanan terenkripsi gagal ditulis (penuh atau diblokir).');
+      if (!V.set(KEY, JSON.stringify(obj))) throw new Error('Penyimpanan di perangkat gagal (penuh atau diblokir).');
     },
   };
   const store = new core.Store(persist);
@@ -283,6 +289,7 @@
   function scheduleSoon() { clearTimeout(timer); timer = setTimeout(afterChange, 400); }
   let afterRunning = false, afterAgain = false;
   async function afterChange() {
+    if (!vReady()) return; // data terenkripsi belum dibuka: jangan jadwalkan/dorong dari data kosong
     if (afterRunning) { afterAgain = true; return; } // jadwal ulang tidak boleh tumpang tindih (saling membatalkan)
     afterRunning = true;
     try {
@@ -357,7 +364,8 @@
   }
 
   /* ---------- snapshot harian & salinan di folder Dokumen ---------- */
-  const loadSnaps = () => { const v = lsGet(SNAP_KEY); return Array.isArray(v) ? v : []; };
+  const loadSnaps = () => { let v = null; try { v = JSON.parse(V.get(SNAP_KEY)); } catch (e) { /* kosong */ } return Array.isArray(v) ? v : []; };
+  const saveSnaps = list => V.set(SNAP_KEY, JSON.stringify(list));
   const asSyncFile = state => ({ app: 'todo-cli', kind: 'sync', format: 1, device: 'snapshot', exported_at: '', tasks: state.tasks, deleted: state.deleted });
   const status = Object.assign({ doc: null, auto: null }, lsGet(STATUS_KEY));
   const saveStatus = () => lsSet(STATUS_KEY, status);
@@ -367,14 +375,14 @@
     const r = core.rotateSnapshots(loadSnaps(), { tasks: f.tasks, deleted: f.deleted }, store.clock.now(), 7);
     if (!r.created) return;
     let list = r.list;
-    while (!lsSet(SNAP_KEY, list) && list.length > 1) list = list.slice(1); // kuota penuh: buang salinan terlama, jangan gagal diam-diam
+    while (!saveSnaps(list) && list.length > 1) list = list.slice(1); // kuota penuh: buang salinan terlama, jangan gagal diam-diam
     await writeDocuments(true);
   }
 
   let lastDoc = null, docAt = 0;
   async function writeDocuments(force) {
     const FS = plugin('Filesystem');
-    if (!isNative() || !FS) return;
+    if (!isNative() || !FS || !vReady() || V.enabled()) return; // enkripsi aktif: tidak ada salinan teks biasa di Dokumen
     const f = store.syncFile('Android');
     if (!f.tasks.length) return; // jangan menimpa salinan lama dengan data kosong
     const sig = JSON.stringify([f.tasks, f.deleted]);
@@ -440,7 +448,7 @@
   function autoSyncSoon(ms) { if (!loadCfg()) return; clearTimeout(autoTimer); autoTimer = setTimeout(autoSyncNow, ms == null ? 4000 : ms); }
   async function autoSyncNow() {
     const cfg = loadCfg();
-    if (!cfg || !window.TodoAutoSync) return;
+    if (!cfg || !window.TodoAutoSync || !vReady()) return;
     if (syncing) { again = true; return; }
     syncing = true;
     try {
@@ -487,10 +495,23 @@
   };
   window.todoLocalStore = store; // untuk tes
 
+  /* Enkripsi PIN: setelah blob terbuka, isi ulang store dari data yang baru terbaca lalu segarkan tampilan dan jadwal. */
+  V.onUnlock(async () => {
+    store.init(persist.load());
+    scheduleSoon(); autoSyncSoon(800);
+    if (typeof window.refresh === 'function') { try { await window.refresh(); } catch (e) { /* tampilan menyusul */ } }
+  });
+  // Enkripsi baru dinyalakan: hapus salinan teks biasa di folder Dokumen (bila ada) dan jangan tulis lagi.
+  V.onEnable(async () => {
+    const FS = plugin('Filesystem');
+    lastDoc = null; status.doc = null; saveStatus();
+    if (isNative() && FS && typeof FS.deleteFile === 'function') { try { await FS.deleteFile({ path: 'Todo/todo-cadangan.json', directory: 'DOCUMENTS' }); } catch (e) { /* tidak ada */ } }
+  });
+
   /* Status data rusak untuk spanduk: {raw: ada salinan rusak?, snapshot: ada snapshot untuk dipulihkan?}. */
   window.todoDataIssue = function () {
     let raw = null;
-    try { raw = localStorage.getItem(CORRUPT_KEY); } catch (e) { /* abaikan */ }
+    raw = V.get(CORRUPT_KEY);
     if (raw === null) return null;
     return { snapshot: loadSnaps().length > 0, empty: store.tasks.length === 0 };
   };
@@ -499,16 +520,16 @@
     const last = snaps[snaps.length - 1];
     if (!last) return false;
     store.restoreSnapshot(asSyncFile(last.state));
-    try { localStorage.removeItem(CORRUPT_KEY); } catch (e) { /* abaikan */ }
+    V.del(CORRUPT_KEY);
     scheduleSoon(); autoSyncSoon();
     return true;
   };
   window.todoShareCorrupt = function () {
     let raw = '';
-    try { raw = localStorage.getItem(CORRUPT_KEY) || ''; } catch (e) { /* abaikan */ }
+    raw = V.get(CORRUPT_KEY) || '';
     return window.todoShareText('Data tugas rusak', raw);
   };
-  window.todoDropCorrupt = function () { try { localStorage.removeItem(CORRUPT_KEY); } catch (e) { /* abaikan */ } };
+  window.todoDropCorrupt = function () { V.del(CORRUPT_KEY); };
 
   /* ---------- cadangan & pemulihan ---------- */
   const T = window.T;
@@ -618,7 +639,7 @@
       if (!window.confirm(T('Daftar tugas akan DIGANTI persis seperti pada {label}. Tugas yang dibuat/diubah sesudahnya hilang (kondisi sekarang disimpan dulu sebagai salinan). Lanjutkan?', { label }))) return;
       try {
         const now = store.clock.now(), cur = store.syncFile('snapshot');
-        lsSet(SNAP_KEY, loadSnaps().concat([{ day: now.slice(0, 10), at: now, pre: true, state: { tasks: cur.tasks, deleted: cur.deleted } }]).slice(-8));
+        saveSnaps(loadSnaps().concat([{ day: now.slice(0, 10), at: now, pre: true, state: { tasks: cur.tasks, deleted: cur.deleted } }]).slice(-8));
         const r = store.restoreSnapshot(asSyncFile(snap.state));
         saySnap(T('{restored} tugas dipulihkan, {removed} dihapus.', r));
         scheduleSoon(); autoSyncSoon();

@@ -46,6 +46,6 @@ let html = fs.readFileSync(path.join(src, 'index.html'), 'utf8');
 html = replaceOnce(html, 'width=device-width, initial-scale=1"', 'width=device-width, initial-scale=1, viewport-fit=cover"');
 html = replaceOnce(html, '<meta charset="utf-8">\n', '<meta charset="utf-8">\n<meta http-equiv="Content-Security-Policy" content="' + CSP + '">\n');
 html = replaceOnce(html, '<script src="/app.js" defer></script>',
-  '<script src="/version.js"></script>\n<script src="/i18n.js"></script>\n<script src="/i18n-en.js"></script>\n<script src="/todo-core.js"></script>\n<script src="/autosync.js"></script>\n<script src="/a11y.js"></script>\n<script src="/lock.js"></script>\n<script src="/local-api.js"></script>\n<script src="/app.js" defer></script>');
+  '<script src="/version.js"></script>\n<script src="/i18n.js"></script>\n<script src="/i18n-en.js"></script>\n<script src="/todo-core.js"></script>\n<script src="/autosync.js"></script>\n<script src="/a11y.js"></script>\n<script src="/vault.js"></script>\n<script src="/lock.js"></script>\n<script src="/local-api.js"></script>\n<script src="/app.js" defer></script>');
 fs.writeFileSync(path.join(out, 'index.html'), html);
 console.log('www siap: ' + fs.readdirSync(out).sort().join(', '));

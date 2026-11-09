@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.40.0] - 2026-11-09
+
+### Keamanan: enkripsi data di perangkat (opsional)
+- Pengaturan Kunci aplikasi: tombol "Nyalakan enkripsi data" (butuh PIN aktif). Tugas, snapshot harian, dan salinan data rusak disimpan sebagai satu blob AES-256-GCM; kuncinya diturunkan dari PIN (PBKDF2-SHA256, 300.000 putaran, garam terpisah) dan hanya ada di memori.
+- Saat dinyalakan, data teks biasa dihapus hanya setelah blob terbukti bisa dibaca kembali; salinan lama di Dokumen/Todo dihapus dan tidak ditulis lagi. Mematikan enkripsi (atau mematikan kunci) mengembalikan data sebagai teks biasa.
+- Saat terkunci, tidak ada jadwal notifikasi, dorongan widget, sinkron, atau penulisan yang berjalan dari data kosong.
+- Batas: PIN 4 sampai 8 angka berarti ruang tebakan kecil; penyerang yang menyalin penyimpanan dapat menebak PIN secara luring. Ini menghalangi pembacaan santai, bukan penyerang berdaya besar. Lupa PIN = data di HP tak bisa dibuka (pulihkan dari cadangan/sinkron). Penulisan terenkripsi berjalan asinkron, jadi kegagalan simpan (penyimpanan penuh) baru terdeteksi pada perubahan berikutnya, tidak membatalkan perubahan seketika seperti mode biasa. Token sinkron tetap di penyimpanan native terpisah.
+- Mengganti PIN saat enkripsi aktif ditolak; matikan enkripsi dulu.
+
 ## [0.39.0] - 2026-11-09
 
 ### Pengingat

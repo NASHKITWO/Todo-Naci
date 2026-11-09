@@ -1,6 +1,7 @@
 /* Tuntas Harian - Hak Cipta (c) 2026 Muhammad Ikhsan. SPDX-License-Identifier: GPL-3.0-or-later. Program ini perangkat lunak bebas di bawah GNU GPL v3 atau yang lebih baru, TANPA JAMINAN; lihat LICENSE dan NOTICE. */
-/* Kunci aplikasi (PIN), opsional. Hanya mengunci TAMPILAN: data di perangkat tidak dienkripsi. Melindungi dari orang yang
- * meminjam atau mengintip layar HP, bukan dari pihak yang bisa membaca penyimpanan perangkat.
+/* Kunci aplikasi (PIN), opsional. Secara bawaan hanya mengunci TAMPILAN: melindungi dari orang yang meminjam atau mengintip
+ * layar HP, bukan dari pihak yang bisa membaca penyimpanan perangkat. Untuk itu ada enkripsi data opsional (vault.js) yang
+ * memakai PIN yang sama; saat aktif, PIN yang benar juga membuka data (lihat submit).
  *  - PIN 4-8 digit disimpan sebagai hash PBKDF2-SHA256 (garam acak, 150.000 putaran), bukan teks.
  *  - Salah PIN berulang: jeda makin lama (mulai dari 5 kali salah).
  *  - Terkunci saat dibuka dan saat kembali dari latar belakang lebih lama dari batas yang dipilih.
@@ -53,6 +54,7 @@
   }
   async function setPin(pin, auto) {
     if (!validPin(pin)) throw new Error('PIN harus 4 sampai 8 angka.');
+    if (window.TodoVault && window.TodoVault.enabled()) throw new Error('Matikan enkripsi data dulu sebelum mengganti PIN.');
     const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
     cfg = { salt, iter: ITER, hash: await derive(pin, salt, ITER), auto: Number.isFinite(auto) ? auto : 30, fails: 0, until: 0 };
     if (!write(cfg)) { cfg = null; throw new Error('Penyimpanan di perangkat gagal (penuh atau diblokir).'); }
@@ -96,7 +98,16 @@
     openBtn.disabled = true;
     let r;
     try { r = await verify(pin); } finally { openBtn.disabled = false; }
-    if (r.ok) { pinInput.value = ''; msg.textContent = ''; unlock(); return; }
+    if (r.ok) {
+      const V = window.TodoVault;
+      if (V && V.enabled() && !V.ready()) {
+        let opened = false;
+        openBtn.disabled = true;
+        try { opened = await V.unlock(pin); } catch (e) { opened = false; } finally { openBtn.disabled = false; }
+        if (!opened) { pinInput.value = ''; msg.textContent = T('Data terenkripsi tidak bisa dibuka dengan PIN ini.'); pinInput.focus(); return; }
+      }
+      pinInput.value = ''; msg.textContent = ''; unlock(); return;
+    }
     pinInput.value = '';
     if (r.wait) countdown(); else msg.textContent = T('PIN salah.');
     pinInput.focus();
@@ -151,7 +162,11 @@
     auto: () => (cfg ? cfg.auto : 30),
     setPin, setAuto, verify,
     lockNow: lock,
-    disable: async pin => { const r = await verify(pin); if (r.ok) { cfg = null; write(null); syncSecure(); window.dispatchEvent(new Event('todo-lock-changed')); } return r; },
+    vaultOn: () => !!(window.TodoVault && window.TodoVault.enabled()),
+    /* Nyalakan/matikan enkripsi data: PIN diperiksa dulu; PIN yang sama menurunkan kunci. */
+    enableVault: async pin => { const r = await verify(pin); if (r.ok) await window.TodoVault.enable(pin); return r; },
+    disableVault: async pin => { const r = await verify(pin); if (r.ok) await window.TodoVault.disable(); return r; },
+    disable: async pin => { const r = await verify(pin); if (r.ok && window.TodoVault && window.TodoVault.enabled()) { try { await window.TodoVault.disable(); } catch (e) { return { ok: false, wait: 0, error: e.message }; } } if (r.ok) { cfg = null; write(null); syncSecure(); window.dispatchEvent(new Event('todo-lock-changed')); } return r; },
     afterUnlock: fn => { if (isLocked) waiters.push(fn); else fn(); },
   };
   syncSecure();

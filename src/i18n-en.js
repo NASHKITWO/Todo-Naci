@@ -268,8 +268,40 @@
     'Segera': 'Immediately', '30 detik': '30 seconds', '1 menit': '1 minute', '5 menit': '5 minutes',
     'Aktifkan kunci': 'Turn on lock', 'Kunci sekarang': 'Lock now', 'Matikan kunci': 'Turn off lock',
     'Saat kunci aktif di Android, tangkapan layar dan pratinjau di daftar aplikasi terbaru diblokir.': 'While the lock is on, Android blocks screenshots and the preview in the recent-apps list.',
-    'PIN hanya mengunci tampilan aplikasi; data di perangkat tidak dienkripsi. Jika lupa PIN, satu-satunya jalan adalah menghapus data aplikasi di perangkat ini, lalu memulihkan dari cadangan atau sinkron.':
-      'The PIN only locks the app screen; data on the device is not encrypted. If you forget the PIN, the only way is to erase the app data on this device and restore from a backup or sync.',
+    'Secara bawaan PIN hanya mengunci tampilan. Nyalakan enkripsi data bila ingin isi penyimpanan HP ikut diacak dengan PIN yang sama. Jika lupa PIN, satu-satunya jalan adalah menghapus data aplikasi di perangkat ini, lalu memulihkan dari cadangan atau sinkron.':
+      'By default the PIN only locks the screen. Turn on data encryption to also scramble the phone storage with the same PIN. If you forget the PIN, the only way is to erase the app data on this device and restore from a backup or sync.',
+    'Enkripsi data: aktif. Tugas, snapshot, dan salinan di folder Dokumen tidak disimpan sebagai teks biasa.':
+      'Data encryption: on. Tasks and snapshots are not stored as plain text, and no copy is written to the Documents folder.',
+    'Enkripsi data: mati. PIN hanya mengunci tampilan.':
+      'Data encryption: off. The PIN only locks the screen.',
+    'Matikan enkripsi data':
+      'Turn off data encryption',
+    'Nyalakan enkripsi data':
+      'Turn on data encryption',
+    'Enkripsi data':
+      'Data encryption',
+    'Enkripsi data dimatikan.':
+      'Data encryption is off.',
+    'Enkripsi data aktif.':
+      'Data encryption is on.',
+    'Isi PIN saat ini dulu.':
+      'Enter your current PIN first.',
+    'Data tugas di HP akan dienkripsi dengan PIN ini. Lupa PIN = data di HP tidak bisa dibuka (pulihkan dari cadangan atau sinkron). Lanjutkan?':
+      'Tasks on this phone will be encrypted with this PIN. Forgot PIN = the data on the phone cannot be opened (restore from a backup or sync). Continue?',
+    'Data terenkripsi tidak bisa dibuka dengan PIN ini.':
+      'The encrypted data cannot be opened with this PIN.',
+    'Matikan enkripsi data dulu sebelum mengganti PIN.':
+      'Turn off data encryption before changing the PIN.',
+    'Data terkunci. Buka dengan PIN dulu.':
+      'Data is locked. Unlock with your PIN first.',
+    'Penyimpanan terenkripsi gagal ditulis (penuh atau diblokir).':
+      'Writing encrypted storage failed (full or blocked).',
+    'Pemeriksaan hasil enkripsi gagal; data tidak diubah.':
+      'The encryption check failed; data was not changed.',
+    'Enkripsi sudah aktif.':
+      'Encryption is already on.',
+    'Buka kunci dulu.':
+      'Unlock first.',
     'PIN harus 4 sampai 8 angka.': 'The PIN must be 4 to 8 digits.', 'Kedua PIN tidak sama.': 'The two PINs do not match.',
     'Kunci aktif. Aplikasi terkunci saat ditinggalkan lebih dari 30 detik.': 'Lock is on. The app locks after being left for more than 30 seconds.',
     'Kunci dimatikan.': 'Lock turned off.', 'PIN salah.': 'Wrong PIN.',
