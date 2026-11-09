@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.41.0] - 2026-11-09
+
+### Keamanan
+- Ganti PIN di pengaturan Kunci aplikasi (PIN lama wajib benar). Saat enkripsi data aktif, data dienkripsi ulang dengan satu penulisan atomik; bila PIN layar gagal disimpan, kunci lama dipulihkan.
+- Format blob terenkripsi v2 memuat garam dan putaran di kepala blob (blob v1 dari 0.40.0 tetap terbaca).
+- PIN boleh sampai 16 angka (sebelumnya 8) supaya lebih sulit ditebak luring; PIN lama tetap berlaku.
+- Kegagalan menulis penyimpanan terenkripsi kini memunculkan peringatan seketika.
+- Tidak berubah: lupa PIN = data di HP tak bisa dibuka; salinan otomatis di Dokumen/Todo tetap mati saat enkripsi aktif; kegagalan simpan terenkripsi tidak membatalkan perubahan seperti mode biasa.
+
 ## [0.40.0] - 2026-11-09
 
 ### Keamanan: enkripsi data di perangkat (opsional)

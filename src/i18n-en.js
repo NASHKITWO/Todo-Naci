@@ -262,8 +262,8 @@
     'Kirim pukul': 'Send at',
     'Pengingat berlaku untuk tugas yang punya tanggal dan jam. Tanpa jam, hanya "1 hari sebelumnya" yang berbunyi.': 'Reminders apply to tasks with a date and time. Without a time, only "1 day before" rings.',
     'Kunci aplikasi': 'App lock', 'Kunci aplikasi dengan PIN': 'Lock the app with a PIN',
-    'PIN baru (4 sampai 8 angka)': 'New PIN (4 to 8 digits)', 'Ulangi PIN': 'Repeat PIN', 'PIN saat ini': 'Current PIN',
-    'PIN saat ini (untuk mematikan)': 'Current PIN (to turn off)', 'PIN': 'PIN',
+    'PIN baru (4 sampai 16 angka)': 'New PIN (4 to 16 digits)', 'Ulangi PIN': 'Repeat PIN', 'PIN saat ini': 'Current PIN',
+    'PIN saat ini (untuk mengganti atau mematikan)': 'Current PIN (to turn off)', 'PIN': 'PIN',
     'Kunci otomatis': 'Auto-lock', 'Kunci otomatis setelah ditinggalkan': 'Auto-lock after leaving the app',
     'Segera': 'Immediately', '30 detik': '30 seconds', '1 menit': '1 minute', '5 menit': '5 minutes',
     'Aktifkan kunci': 'Turn on lock', 'Kunci sekarang': 'Lock now', 'Matikan kunci': 'Turn off lock',
@@ -278,6 +278,9 @@
       'Turn off data encryption',
     'Nyalakan enkripsi data':
       'Turn on data encryption',
+    'Ganti PIN':'Change PIN','PIN diganti.':'PIN changed.',
+    'Gunakan Ganti PIN saat enkripsi data aktif.':'Use Change PIN while data encryption is on.',
+    'Penyimpanan terenkripsi gagal ditulis (penuh atau diblokir). Perubahan terakhir mungkin belum tersimpan.':'Writing encrypted storage failed (full or blocked). The latest change may not be saved.',
     'Enkripsi data':
       'Data encryption',
     'Enkripsi data dimatikan.':
@@ -302,7 +305,7 @@
       'Encryption is already on.',
     'Buka kunci dulu.':
       'Unlock first.',
-    'PIN harus 4 sampai 8 angka.': 'The PIN must be 4 to 8 digits.', 'Kedua PIN tidak sama.': 'The two PINs do not match.',
+    'PIN harus 4 sampai 16 angka.': 'The PIN must be 4 to 16 digits.', 'Kedua PIN tidak sama.': 'The two PINs do not match.',
     'Kunci aktif. Aplikasi terkunci saat ditinggalkan lebih dari 30 detik.': 'Lock is on. The app locks after being left for more than 30 seconds.',
     'Kunci dimatikan.': 'Lock turned off.', 'PIN salah.': 'Wrong PIN.',
     'Terlalu banyak percobaan. Coba lagi dalam {n} detik.': 'Too many attempts. Try again in {n} seconds.',

@@ -2,7 +2,7 @@
 /* Kunci aplikasi (PIN), opsional. Secara bawaan hanya mengunci TAMPILAN: melindungi dari orang yang meminjam atau mengintip
  * layar HP, bukan dari pihak yang bisa membaca penyimpanan perangkat. Untuk itu ada enkripsi data opsional (vault.js) yang
  * memakai PIN yang sama; saat aktif, PIN yang benar juga membuka data (lihat submit).
- *  - PIN 4-8 digit disimpan sebagai hash PBKDF2-SHA256 (garam acak, 150.000 putaran), bukan teks.
+ *  - PIN 4-16 digit disimpan sebagai hash PBKDF2-SHA256 (garam acak, 150.000 putaran), bukan teks.
  *  - Salah PIN berulang: jeda makin lama (mulai dari 5 kali salah).
  *  - Terkunci saat dibuka dan saat kembali dari latar belakang lebih lama dari batas yang dipilih.
  *  - Lupa PIN: satu-satunya jalan adalah menghapus data aplikasi di perangkat ini (pulihkan dari cadangan/sinkron). */
@@ -32,7 +32,7 @@
     return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: unhex(saltHex), iterations: iter }, key, 256));
   }
   const same = (a, b) => { let d = a.length ^ b.length; for (let i = 0; i < Math.max(a.length, b.length); i++) d |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0); return d === 0; };
-  const validPin = pin => /^\d{4,8}$/.test(pin);
+  const validPin = pin => /^\d{4,16}$/.test(pin);
   const wait = fails => (fails >= 5 ? Math.min(900, 30 * Math.pow(2, fails - 5)) : 0); // detik
 
   let verifying = false;
@@ -53,8 +53,8 @@
     return { ok: false, wait: w };
   }
   async function setPin(pin, auto) {
-    if (!validPin(pin)) throw new Error('PIN harus 4 sampai 8 angka.');
-    if (window.TodoVault && window.TodoVault.enabled()) throw new Error('Matikan enkripsi data dulu sebelum mengganti PIN.');
+    if (!validPin(pin)) throw new Error('PIN harus 4 sampai 16 angka.');
+    if (window.TodoVault && window.TodoVault.enabled()) throw new Error('Gunakan Ganti PIN saat enkripsi data aktif.');
     const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
     cfg = { salt, iter: ITER, hash: await derive(pin, salt, ITER), auto: Number.isFinite(auto) ? auto : 30, fails: 0, until: 0 };
     if (!write(cfg)) { cfg = null; throw new Error('Penyimpanan di perangkat gagal (penuh atau diblokir).'); }
@@ -75,7 +75,7 @@
 
   function build() {
     if (root) return;
-    pinInput = el('input', { class: 'input', id: 'lock-pin', type: 'password', inputmode: 'numeric', autocomplete: 'off', maxlength: '8', 'aria-label': T('PIN') });
+    pinInput = el('input', { class: 'input', id: 'lock-pin', type: 'password', inputmode: 'numeric', autocomplete: 'off', maxlength: '16', 'aria-label': T('PIN') });
     msg = el('div', { class: 'login-err', id: 'lock-msg', role: 'alert' });
     openBtn = el('button', { class: 'btn primary', type: 'button', id: 'lock-open', onclick: submit }, T('Buka'));
     confirmBox = el('div', { class: 'lock-forgot', id: 'lock-forgot', hidden: '' },
@@ -162,6 +162,25 @@
     auto: () => (cfg ? cfg.auto : 30),
     setPin, setAuto, verify,
     lockNow: lock,
+    /* Ganti PIN (PIN lama wajib benar). Enkripsi aktif: data dienkripsi ulang dulu; bila PIN layar gagal disimpan, kunci lama dipulihkan. */
+    changePin: async (oldPin, newPin) => {
+      const r = await verify(oldPin);
+      if (!r.ok) return r;
+      if (!validPin(newPin)) throw new Error('PIN harus 4 sampai 16 angka.');
+      const V = window.TodoVault, enc = !!(V && V.enabled());
+      if (enc) await V.rekey(newPin);
+      const prev = cfg;
+      try {
+        const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
+        const next = { salt, iter: ITER, hash: await derive(newPin, salt, ITER), auto: prev.auto, fails: 0, until: 0 };
+        if (!write(next)) throw new Error('Penyimpanan di perangkat gagal (penuh atau diblokir).');
+        cfg = next;
+      } catch (e) {
+        if (enc) { try { await V.rekey(oldPin); } catch (e2) { /* kunci lama gagal dipulihkan: kabari lewat galat asli */ } }
+        throw e;
+      }
+      return { ok: true };
+    },
     vaultOn: () => !!(window.TodoVault && window.TodoVault.enabled()),
     /* Nyalakan/matikan enkripsi data: PIN diperiksa dulu; PIN yang sama menurunkan kunci. */
     enableVault: async pin => { const r = await verify(pin); if (r.ok) await window.TodoVault.enable(pin); return r; },

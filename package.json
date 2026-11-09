@@ -1,6 +1,6 @@
 {
   "name": "todo-apk",
-  "version": "0.40.0",
+  "version": "0.41.0",
   "private": true,
   "description": "Aplikasi to-do Android: data di HP, notifikasi lokal, sinkron lewat berkas. Dibangun dengan Capacitor.",
   "license": "GPL-3.0-or-later",
