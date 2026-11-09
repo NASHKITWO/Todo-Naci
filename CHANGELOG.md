@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.42.0] - 2026-11-10
+
+### Keamanan: pemulihan dan cadangan terenkripsi
+- Kunci pemulihan: saat enkripsi data dinyalakan, aplikasi menampilkan sekali sebuah kunci acak 160-bit. Lupa PIN? Di layar kunci pilih "Pakai kunci pemulihan", isi kunci itu dan PIN baru; data tetap utuh. "Buat kunci pemulihan baru" membatalkan yang lama.
+- Format blob v3: data dienkripsi dengan kunci data acak, yang dibungkus terpisah oleh PIN dan oleh kunci pemulihan. Ganti PIN cukup membungkus ulang kunci data. Blob v1/v2 (0.40 dan 0.41) tetap terbuka; "Buat kunci pemulihan baru" menaikkannya ke v3.
+- Cadangan otomatis ke Dokumen/Todo kembali berjalan saat enkripsi aktif, berupa blob terenkripsi (`todo-cadangan.terenkripsi.txt`, tanpa teks biasa). Pulihkan lewat "Gabungkan dari berkas…", lalu isi PIN atau kunci pemulihan saat berkas dibuat.
+- Batas: kunci pemulihan yang hilang bersama PIN berarti data tak bisa dibuka. PIN pendek tetap bisa ditebak luring dari salinan penyimpanan; pakai PIN panjang.
+
 ## [0.41.0] - 2026-11-09
 
 ### Keamanan

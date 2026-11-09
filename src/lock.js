@@ -70,7 +70,7 @@
     n.append(...kids.filter(x => x != null));
     return n;
   };
-  let root, pinInput, msg, openBtn, forgot, confirmBox;
+  let root, pinInput, msg, openBtn, forgot, confirmBox, recBox, recBtn;
   let tick = null;
 
   function build() {
@@ -82,13 +82,26 @@
       el('p', { class: 'sub' }, T('Menghapus data di perangkat ini tidak bisa dibatalkan. Tugas yang sudah dicadangkan atau disinkronkan bisa dipulihkan lagi.')),
       el('button', { class: 'btn danger', type: 'button', id: 'lock-wipe', onclick: wipe }, T('Hapus data di perangkat ini')),
       el('button', { class: 'btn', type: 'button', onclick: () => { confirmBox.hidden = true; forgot.hidden = false; pinInput.focus(); } }, T('Batal')));
+    const recPin = el('input', { class: 'input', id: 'lock-rec-pin', type: 'password', inputmode: 'numeric', autocomplete: 'off', maxlength: '16', 'aria-label': T('PIN baru (4 sampai 16 angka)') });
+    const recKey = el('input', { class: 'input', id: 'lock-rec-key', type: 'text', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', 'aria-label': T('Kunci pemulihan') });
+    const recMsg = el('div', { class: 'login-err', id: 'lock-rec-msg', role: 'alert' });
+    recBox = el('div', { class: 'lock-forgot', id: 'lock-recover', hidden: '' },
+      el('p', { class: 'sub' }, T('Masukkan kunci pemulihan yang ditampilkan saat enkripsi dinyalakan, lalu pilih PIN baru.')),
+      recKey, recPin, recMsg,
+      el('button', { class: 'btn primary', type: 'button', id: 'lock-rec-go', onclick: async () => {
+        recMsg.textContent = '';
+        try { if (!(await window.TodoLock.recover(recKey.value, recPin.value))) recMsg.textContent = T('Kunci pemulihan salah.'); else { recKey.value = ''; recPin.value = ''; } }
+        catch (e) { recMsg.textContent = T(e.message); }
+      } }, T('Pulihkan dan ganti PIN')),
+      el('button', { class: 'btn', type: 'button', onclick: () => { recBox.hidden = true; forgot.hidden = false; recBtn.hidden = false; pinInput.focus(); } }, T('Batal')));
+    recBtn = el('button', { class: 'btn small', type: 'button', id: 'lock-rec-btn', hidden: '', onclick: () => { recBox.hidden = false; forgot.hidden = true; recBtn.hidden = true; recKey.focus(); } }, T('Pakai kunci pemulihan'));
     forgot = el('button', { class: 'btn small', type: 'button', id: 'lock-forgot-btn', onclick: () => { confirmBox.hidden = false; forgot.hidden = true; } }, T('Lupa PIN?'));
     root = el('div', { class: 'login lock', id: 'lock', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'lock-title', hidden: '' },
       el('div', { class: 'login-card' },
         el('div', { class: 'lock-mark', 'aria-hidden': 'true' }, '✓'),
         el('h2', { id: 'lock-title', tabindex: '-1' }, T('Tuntas Harian terkunci')),
         el('p', { class: 'sub' }, T('Masukkan PIN untuk membuka.')),
-        pinInput, msg, openBtn, forgot, confirmBox));
+        pinInput, msg, openBtn, forgot, recBtn, confirmBox, recBox));
     document.body.append(root);
     pinInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
     root.addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
@@ -137,6 +150,7 @@
     isLocked = true;
     root.hidden = false;
     confirmBox.hidden = true; forgot.hidden = false;
+    recBox.hidden = true; recBtn.hidden = !(window.TodoVault && window.TodoVault.enabled() && window.TodoVault.recoverable());
     pinInput.value = '';
     window.TodoA11y.open(root, { focus: '#lock-pin', returnTo: null });
     if (cfg.until && cfg.until > Date.now()) countdown();
@@ -183,7 +197,20 @@
     },
     vaultOn: () => !!(window.TodoVault && window.TodoVault.enabled()),
     /* Nyalakan/matikan enkripsi data: PIN diperiksa dulu; PIN yang sama menurunkan kunci. */
-    enableVault: async pin => { const r = await verify(pin); if (r.ok) await window.TodoVault.enable(pin); return r; },
+    enableVault: async pin => { const r = await verify(pin); if (r.ok) r.recovery = await window.TodoVault.enable(pin); return r; },
+    newRecovery: async pin => { const r = await verify(pin); if (r.ok) r.recovery = await window.TodoVault.newRecovery(pin); return r; },
+    /* Lupa PIN dengan enkripsi aktif: kunci pemulihan membuka data, lalu PIN layar dan kunci data dipasang ulang dengan PIN baru. */
+    recover: async (rec, newPin) => {
+      if (!validPin(newPin)) throw new Error('PIN harus 4 sampai 16 angka.');
+      const V = window.TodoVault;
+      if (!(V && V.enabled() && V.recoverable())) return false;
+      if (!(await V.unlockWithRecovery(rec, newPin))) return false;
+      const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
+      cfg = { salt, iter: ITER, hash: await derive(newPin, salt, ITER), auto: cfg && Number.isFinite(cfg.auto) ? cfg.auto : 30, fails: 0, until: 0 };
+      if (!write(cfg)) throw new Error('Penyimpanan di perangkat gagal (penuh atau diblokir).');
+      if (isLocked) unlock();
+      return true;
+    },
     disableVault: async pin => { const r = await verify(pin); if (r.ok) await window.TodoVault.disable(); return r; },
     disable: async pin => { const r = await verify(pin); if (r.ok && window.TodoVault && window.TodoVault.enabled()) { try { await window.TodoVault.disable(); } catch (e) { return { ok: false, wait: 0, error: e.message }; } } if (r.ok) { cfg = null; write(null); syncSecure(); window.dispatchEvent(new Event('todo-lock-changed')); } return r; },
     afterUnlock: fn => { if (isLocked) waiters.push(fn); else fn(); },

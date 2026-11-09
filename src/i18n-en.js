@@ -270,8 +270,40 @@
     'Saat kunci aktif di Android, tangkapan layar dan pratinjau di daftar aplikasi terbaru diblokir.': 'While the lock is on, Android blocks screenshots and the preview in the recent-apps list.',
     'Secara bawaan PIN hanya mengunci tampilan. Nyalakan enkripsi data bila ingin isi penyimpanan HP ikut diacak dengan PIN yang sama. Jika lupa PIN, satu-satunya jalan adalah menghapus data aplikasi di perangkat ini, lalu memulihkan dari cadangan atau sinkron.':
       'By default the PIN only locks the screen. Turn on data encryption to also scramble the phone storage with the same PIN. If you forget the PIN, the only way is to erase the app data on this device and restore from a backup or sync.',
-    'Enkripsi data: aktif. Tugas, snapshot, dan salinan di folder Dokumen tidak disimpan sebagai teks biasa.':
-      'Data encryption: on. Tasks and snapshots are not stored as plain text, and no copy is written to the Documents folder.',
+    "Enkripsi data: aktif. Tugas, snapshot, dan salinan di folder Dokumen hanya disimpan terenkripsi.":
+      "Data encryption: on. Tasks, snapshots, and the copy in the Documents folder are stored encrypted only.",
+    "Kunci pemulihan (ditampilkan sekali). Catat atau simpan di tempat aman di luar HP. Dengan kunci ini PIN yang lupa bisa diganti tanpa kehilangan data; tanpa PIN dan kunci ini data tak bisa dibuka.":
+      "Recovery key (shown once). Write it down or keep it somewhere safe outside the phone. With it, a forgotten PIN can be replaced without losing data; without both the PIN and this key the data cannot be opened.",
+    "Kunci pemulihan":
+      "Recovery key",
+    "Salin":
+      "Copy",
+    "Kunci pemulihan disalin.":
+      "Recovery key copied.",
+    "Buat kunci pemulihan baru":
+      "Create a new recovery key",
+    "Kunci pemulihan lama tidak berlaku lagi. Lanjutkan?":
+      "The old recovery key will stop working. Continue?",
+    "Kunci pemulihan baru dibuat. Catat sekarang.":
+      "New recovery key created. Write it down now.",
+    "Masukkan kunci pemulihan yang ditampilkan saat enkripsi dinyalakan, lalu pilih PIN baru.":
+      "Enter the recovery key shown when encryption was turned on, then choose a new PIN.",
+    "Kunci pemulihan salah.":
+      "Wrong recovery key.",
+    "Pulihkan dan ganti PIN":
+      "Recover and change PIN",
+    "Pakai kunci pemulihan":
+      "Use recovery key",
+    "Berkas ini terenkripsi. Masukkan PIN atau kunci pemulihan saat berkas dibuat:":
+      "This file is encrypted. Enter the PIN or recovery key from when the file was made:",
+    "Dibatalkan.":
+      "Cancelled.",
+    "PIN atau kunci pemulihan salah, atau berkas rusak.":
+      "Wrong PIN or recovery key, or the file is damaged.",
+    "Berkas tidak berisi data tugas.":
+      "The file contains no task data.",
+    "Cadangan terenkripsi di Dokumen/Todo/todo-cadangan.terenkripsi.txt diperbarui pukul {at}. Pulihkan lewat \"Gabungkan dari berkas…\" dengan PIN atau kunci pemulihan.":
+      "The encrypted backup at Documents/Todo/todo-cadangan.terenkripsi.txt was updated at {at}. Restore via \"Merge from file…\" with the PIN or recovery key.",
     'Enkripsi data: mati. PIN hanya mengunci tampilan.':
       'Data encryption: off. The PIN only locks the screen.',
     'Matikan enkripsi data':

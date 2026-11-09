@@ -382,7 +382,19 @@
   let lastDoc = null, docAt = 0;
   async function writeDocuments(force) {
     const FS = plugin('Filesystem');
-    if (!isNative() || !FS || !vReady() || V.enabled()) return; // enkripsi aktif: tidak ada salinan teks biasa di Dokumen
+    if (!isNative() || !FS || !vReady()) return;
+    if (V.enabled()) { // enkripsi aktif: yang ditulis ke Dokumen hanya blob terenkripsi yang sama (dibuka dengan PIN atau kunci pemulihan)
+      if (!store.tasks.length) return;
+      const blob = await V.rawBlob();
+      if (!blob || (!force && (blob === lastDoc || (docAt && Date.now() - docAt < 600000)))) return;
+      try {
+        await FS.writeFile({ path: 'Todo/todo-cadangan.terenkripsi.txt', data: blob, directory: 'DOCUMENTS', encoding: 'utf8', recursive: true });
+        lastDoc = blob; docAt = Date.now();
+        status.doc = { ok: true, at: hhmm(new Date()), enc: true };
+      } catch (e) { status.doc = { ok: false, at: hhmm(new Date()), msg: String((e && e.message) || e) }; }
+      saveStatus();
+      return;
+    }
     const f = store.syncFile('Android');
     if (!f.tasks.length) return; // jangan menimpa salinan lama dengan data kosong
     const sig = JSON.stringify([f.tasks, f.deleted]);
@@ -604,7 +616,17 @@
       picker.value = '';
       if (!file) return;
       try {
-        const data = JSON.parse(await file.text());
+        const text = await file.text();
+        let data;
+        if (window.TodoVault && window.TodoVault.looksEncrypted(text)) { // cadangan terenkripsi dari Dokumen/Todo
+          const secret = window.prompt(T('Berkas ini terenkripsi. Masukkan PIN atau kunci pemulihan saat berkas dibuat:'));
+          if (!secret) { saySync('Dibatalkan.', true); return; }
+          const map = await window.TodoVault.decryptExternal(text, secret.trim());
+          if (!map) { saySync('PIN atau kunci pemulihan salah, atau berkas rusak.', true); return; }
+          const inner = JSON.parse(map['todo-cli.data.v1'] || 'null');
+          if (!inner || !Array.isArray(inner.tasks)) { saySync('Berkas tidak berisi data tugas.', true); return; }
+          data = new core.Store({ load: () => inner, save() {} }).syncFile('cadangan'); // bentuk sama dengan berkas sinkron biasa
+        } else data = JSON.parse(text);
         const r = store.syncWith(data);
         saySync(T('Selesai: {added} baru, {updated} diperbarui, {deleted} dihapus.', r));
         scheduleSoon();
@@ -631,7 +653,7 @@
           el('button', { class: 'btn', type: 'button', 'data-day': snap.day, onclick: () => restoreSnap(snap, label) }, 'Pulihkan')));
       }
       const d = status.doc;
-      docStatus.textContent = !d ? (isNative() ? T('Salinan berkas di folder Dokumen/Todo: belum ditulis.') : '')
+      docStatus.textContent = d && d.ok && d.enc ? T('Cadangan terenkripsi di Dokumen/Todo/todo-cadangan.terenkripsi.txt diperbarui pukul {at}. Pulihkan lewat "Gabungkan dari berkas…" dengan PIN atau kunci pemulihan.', { at: d.at }) : !d ? (isNative() ? T('Salinan berkas di folder Dokumen/Todo: belum ditulis.') : '')
         : d.ok ? T('Salinan berkas di Dokumen/Todo/todo-cadangan.json diperbarui pukul {at}. Pulihkan lewat "Gabungkan dari berkas…".', { at: d.at })
           : T('Salinan ke folder Dokumen gagal ({msg}). Salinan di dalam aplikasi tetap dibuat.', { msg: d.msg });
     }
