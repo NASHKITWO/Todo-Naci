@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.43.0] - 2026-11-10
+
+### Desain
+- Pilihan "Ulangi" dan "Pengingat" di formulir tugas memakai gaya yang sama dengan kotak tanggal/jam (tinggi 48px, panah khas) alih-alih kontrol bawaan sistem.
+- Kartu sapaan: tombol "Tunda sisa ke besok" kini berbingkai tipis di atas latar teal sehingga kartu "Berikutnya" tetap menjadi sorotan utama.
+- Tombol "Pindah ke hari ini" di kepala grup Terlambat jadi tombol teks beraksen, bukan kotak kecil.
+
 ## [0.42.0] - 2026-11-10
 
 ### Keamanan: pemulihan dan cadangan terenkripsi
