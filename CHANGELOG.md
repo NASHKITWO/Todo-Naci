@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.44.0] - 2026-11-10
+
+### Desain: arah "luwes" (kurang kotak)
+- Layar Hari ini: sapaan dan kemajuan langsung di atas alas tanpa kartu hijau. Kemajuan berupa batang bersegmen, satu segmen per tugas (maksimal 12).
+- "Berikutnya" menjadi kartu kuning miring bergaya sticky note; "Tunda sisa ke besok" berbingkai tipis.
+- Daftar: lembar berpojok lebih besar, judul grup memakai font tampilan, judul tugas 17px.
+- Bar tambah tugas melayang berbentuk pil dengan bayangan lembut.
+- Formulir tugas: prioritas jadi tiga pil terpisah (Tinggi merah pekat saat dipilih), tombol tanggal cepat berlatar hijau lembut.
+
 ## [0.43.0] - 2026-11-10
 
 ### Desain

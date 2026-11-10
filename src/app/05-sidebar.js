@@ -79,12 +79,13 @@ function renderHero() {
     HERO.bar = svg.querySelector('.bar');
     HERO.title = h('h2', { id: 'hero-title' });
     HERO.sub = h('p', { id: 'hero-sub' });
+    HERO.seg = h('div', { class: 'hero-seg', 'aria-hidden': 'true' });
     HERO.meta = h('div', { class: 'hero-meta', id: 'hero-meta' });
     HERO.dm = h('span', { class: 'dm' });
     HERO.dd = h('span', { class: 'dd' });
     HERO.dw = h('span', { class: 'dw' });
     HERO.date = h('div', { class: 'dateblock', 'aria-hidden': 'true' }, HERO.dm, HERO.dd, HERO.dw);
-    box.replaceChildren(HERO.date, h('div', { class: 'hero-text' }, HERO.title, HERO.sub, HERO.meta), HERO.ring);
+    box.replaceChildren(HERO.date, h('div', { class: 'hero-text' }, HERO.title, HERO.sub, HERO.seg, HERO.meta), HERO.ring);
     HERO.built = true;
   }
   const top = state.tasks.filter(t => t.parent_id === null);
@@ -104,6 +105,11 @@ function renderHero() {
   HERO.ring.setAttribute('aria-label', T('{done} dari {total} tugas hari ini selesai', { done: doneToday, total }));
   if (total > 0 && open.length === 0) $('#hero-label').replaceChildren(icon('check', 24));
   else $('#hero-label').textContent = total ? doneToday + '/' + total : '0';
+  { // batang kemajuan: satu segmen per tugas hari ini (paling banyak 12; lebih dari itu diskalakan)
+    const n = Math.min(total, 12), filled = total ? Math.round(doneToday / total * n) : 0;
+    HERO.seg.replaceChildren(...Array.from({ length: n }, (_, i) => h('span', { class: i < filled ? 'on' : '' })));
+    HERO.seg.hidden = n === 0;
+  }
   const meta = [];
   const now = nowHHMM();
   const next = open.filter(t => t.due_time && t.deadline === state.today && t.due_time >= now)
