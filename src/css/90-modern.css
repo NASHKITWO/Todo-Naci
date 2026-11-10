@@ -489,3 +489,20 @@ h1, h2, h3, .topbar h1, .hero h2, .kpi .v, .ring .label, .welcome h2, .empty h2,
 :root[data-theme="dark"] .drawer .quick-dates button { color: var(--accent); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .drawer .quick-dates button { color: var(--accent); } }
 .drawer summary { min-height: 44px; border-radius: 22px; }
+
+/* ---------- 0.45 (antislop-ui): radius berjenjang, bukan pil di mana-mana ----------
+ * Alasan: pil seragam menghapus bahasa bentuk (R-11). Jenjang: kontrol 14px (tombol, filter, prioritas, tanggal cepat),
+ * tag kecil 8px (chip di baris), kartu 24px, bulat hanya untuk lingkaran centang. */
+:root { --r-ctl: 14px; --r-tag: 8px; --r-card: 24px; }
+.filters button, .filters .chip, .filters select { border-radius: var(--r-ctl); }
+.seg button { border-radius: var(--r-ctl); }
+.drawer .quick-dates button, .drawer summary { border-radius: var(--r-ctl); }
+.hero .hero-meta button.chip, .hero .hero-meta .chip { border-radius: var(--r-ctl); }
+.hero .hero-meta button#hero-next { border-radius: 20px; }
+.row .chip, .row .tag, .group-head .n { border-radius: var(--r-tag); }
+.group .card { border-radius: var(--r-card); }
+.quick { border-radius: 22px; padding: 8px 8px 8px 20px; }
+.quick .btn.primary { border-radius: var(--r-ctl); }
+/* Terlambat: komposisi berbeda (kartu bernuansa merah lembut) agar grup yang mendesak tampak lain dari grup biasa */
+.group-head.overdue + .card { background-color: var(--surface); background-color: color-mix(in srgb, var(--danger-soft) 45%, var(--surface)); }
+.filters .tabs .qchip, .qchip { border-radius: var(--r-ctl); }

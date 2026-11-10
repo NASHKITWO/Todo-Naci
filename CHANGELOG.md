@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.45.0] - 2026-11-11
+
+### Desain: bentuk berjenjang (kurang generik)
+- Radius tidak lagi pil di mana-mana: kontrol (tombol, filter, prioritas, tanggal cepat, chip kartu sapaan) 14px, tag kecil di baris dan lencana hitungan 8px, kartu 24px. Bulat hanya untuk lingkaran centang.
+- Grup Terlambat memakai kartu bernuansa merah lembut sehingga tampak lain dari grup biasa (hierarki lewat komposisi, bukan hanya warna judul).
+
 ## [0.44.0] - 2026-11-10
 
 ### Desain: arah "luwes" (kurang kotak)
