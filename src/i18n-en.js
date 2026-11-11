@@ -30,6 +30,7 @@
     'Ganti warna aksen': 'Change accent color', 'Ganti tema (t)': 'Change theme (t)', 'Ganti bahasa': 'Switch language',
     'Bahasa: {name}': 'Language: {name}', 'Tidak bisa menyimpan pilihan bahasa.': 'Could not save the language choice.',
     'Warna aksen: {name}': 'Accent color: {name}',
+    'Biru logo': 'Logo blue',
     'Biru tinta': 'Ink blue', 'Hijau daun': 'Leaf green', 'Merah bata': 'Brick red', 'Cokelat kopi': 'Coffee brown', Arang: 'Charcoal',
     'Tema terang': 'Light theme', 'Tema gelap': 'Dark theme',
     Mendatang: 'Upcoming', Kalender: 'Calendar', 'Semua tugas': 'All tasks', Selesai: 'Done', Wawasan: 'Insights', Sampah: 'Trash',

@@ -6,9 +6,10 @@
 @font-face { font-family: "Inter"; src: url("fonts/inter-bold.woff") format("woff"); font-weight: 700; font-style: normal; font-display: swap; }
 /* Token warna, bentuk, dan bayangan. Aksen bisa diganti pengguna (data-accent, lihat 20-pemolesan.css). */
 :root {
-  --bg: #f4f5fa; --surface: #ffffff; --surface-2: #eceef6; --hover: #f6f7fc; --text: #13151d; --muted: #4a5165;
-  --border: #dfe2ec; --rule: #eaecf3;
-  --accent: #0a7f66; --accent-hover: #086a55; --accent-soft: #dcf5ee; --on-accent: #ffffff;
+  --bg: #f1f5fb; --surface: #ffffff; --surface-2: #e5ecf7; --hover: #f5f8fd; --text: #0b2a5b; --muted: #4b5f82;
+  --border: #d5dfee; --rule: #e4ebf6;
+  --accent: #1a6bd0; --accent-hover: #1558a8; --accent-soft: #e3eefc; --on-accent: #ffffff;
+  --logo-t: #0b2a5b; --logo-c: #1e78e6;
   --raised: #ffffff; --edge: rgba(19, 21, 29, .05);
   --p1: #e5484d; --p2: #d97706; --p3: #5b7fb8; --ok: #0f9d63;
   --danger-soft: #ffe8ea; --warn-soft: #fff1d6; --ok-soft: #dcf6e9; --info-soft: #e6edff;
@@ -19,10 +20,11 @@
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 :root[data-theme="dark"] {
-  --bg: #090b10; --surface: #141822; --surface-2: #1e2331; --hover: #191e2b; --text: #eceef6; --muted: #a9b0c4;
-  --raised: #1c2233; --edge: rgba(255, 255, 255, .07);
-  --border: #292e3d; --rule: #232837;
-  --accent: #4fd8b4; --accent-hover: #7ae3c5; --accent-soft: #11332b; --on-accent: #04211a;
+  --bg: #071428; --surface: #0e2142; --surface-2: #17305a; --hover: #12284d; --text: #eaf2ff; --muted: #a9bde0;
+  --raised: #14294f; --edge: rgba(255, 255, 255, .07);
+  --border: #24406f; --rule: #1b3560;
+  --accent: #6db0ff; --accent-hover: #8dc2ff; --accent-soft: #12315e; --on-accent: #06214a;
+  --logo-t: #ffffff; --logo-c: #6db0ff;
   --p1: #ff7378; --p2: #ffb049; --p3: #8fa9d6; --ok: #3ccf91;
   --danger-soft: #3a1c20; --warn-soft: #382a12; --ok-soft: #12302a; --info-soft: #182645;
   --danger-text: #ff9a9e; --warn-text: #ffc772; --ok-text: #74e3b2; --info-text: #a1bcff;

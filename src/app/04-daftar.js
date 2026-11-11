@@ -246,7 +246,7 @@ function emptyState(key, text) {
   const brandNew = !state.tasks.length && ['today', 'all', 'upcoming', 'calendar'].indexOf(key) !== -1;
   if (brandNew) {
     return h('div', { class: 'empty welcome', id: 'welcome' },
-      scene(false),
+      h('div', { class: 'welcome-logo' }, logoMark(112)),
       h('h2', {}, 'Selamat datang di Tuntas Harian'),
       h('p', {}, 'Mulai dari yang kecil.'),
       h('ul', { class: 'tips' },

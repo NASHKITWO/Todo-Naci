@@ -374,10 +374,10 @@ h1, h2, h3, .topbar h1, .hero h2, .kpi .v, .ring .label, .welcome h2, .empty h2,
 @media (max-width: 420px) { .filters .tabs { gap: 5px; } .filters .tabs .qchip { padding-left: 10px; padding-right: 10px; } .filters { gap: 6px; } }
 
 /* ---------- 0.38: identitas (kartu sapaan teal pekat), hierarki chip, teks lebih terbaca ---------- */
-:root { --hero-a: #0b7a63; --hero-b: #065847; }
-:root[data-theme="dark"] { --hero-a: #0f4a3f; --hero-b: #0a332c; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --hero-a: #0f4a3f; --hero-b: #0a332c; } }
-.hero { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); color: #fff; box-shadow: 0 10px 24px -14px rgba(6, 88, 71, .7); }
+:root { --hero-a: #0b2a5b; --hero-b: #0a2350; }
+:root[data-theme="dark"] { --hero-a: #0b2a5b; --hero-b: #071d45; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --hero-a: #0b2a5b; --hero-b: #071d45; } }
+.hero { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); color: #fff; box-shadow: 0 10px 24px -14px rgba(11, 42, 91, .6); }
 :root[data-theme="dark"] .hero { background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); }
 /* motif cincin tuntas besar dan samar di sudut kartu */
 .hero::after { content: ""; position: absolute; right: -34px; bottom: -44px; width: 150px; height: 150px; pointer-events: none; opacity: .13;
@@ -392,7 +392,7 @@ h1, h2, h3, .topbar h1, .hero h2, .kpi .v, .ring .label, .welcome h2, .empty h2,
 .hero .ring.full .label { color: var(--hero-a); }
 .hero .ring.full .bar { stroke: var(--hero-a); }
 .hero .ring.full .track { stroke: transparent; }
-.hero-meta .chip { background: rgba(255, 255, 255, .96); color: #10261f; box-shadow: none; }
+.hero-meta .chip { background: rgba(255, 255, 255, .96); color: #0b2a5b; box-shadow: none; }
 .hero-meta .nx-l { color: #3b5a50; }
 .hero-meta button.chip:hover { color: var(--hero-b); }
 /* hierarki chip: hanya tanggal yang berlatar; proyek = titik warna + teks; tag = teks redup */
@@ -402,8 +402,8 @@ h1, h2, h3, .topbar h1, .hero h2, .kpi .v, .ring .label, .welcome h2, .empty h2,
 .chip { font-size: 14.5px; }
 :root { --muted: #3d4456; }
 :root[data-theme="dark"] { --muted: #b4bbce; }
-.hero-meta .chip, .hero-meta .nx-t, .hero-meta .chip .ell, .hero-meta .chip svg { color: #10261f; }
-:root[data-theme="dark"] .hero-meta .chip, :root[data-theme="dark"] .hero-meta .nx-t { color: #10261f; }
+.hero-meta .chip, .hero-meta .nx-t, .hero-meta .chip .ell, .hero-meta .chip svg { color: #0b2a5b; }
+:root[data-theme="dark"] .hero-meta .chip, :root[data-theme="dark"] .hero-meta .nx-t { color: #0b2a5b; }
 .hero { background-color: var(--hero-a); }
 .hero .dateblock { color: var(--text); } .hero .dateblock .dw { color: var(--muted); }
 
@@ -445,7 +445,8 @@ h1, h2, h3, .topbar h1, .hero h2, .kpi .v, .ring .label, .welcome h2, .empty h2,
 .hero .hero-meta button#hero-tomorrow, .hero .hero-meta button#hero-tomorrow .ell, :root[data-theme="dark"] .hero .hero-meta button#hero-tomorrow { color: #fff; }
 
 /* ---------- 0.44: arah "luwes": sapaan tanpa kotak, kemajuan bersegmen, kartu berikutnya miring, daftar lapang ---------- */
-:root { --sticky: #F6C453; --sticky-ink: #10231D; --sticky-sub: #3D3210; }
+:root { --sticky: #0B2A5B; --sticky-ink: #FFFFFF; --sticky-sub: #BFD5F5; }
+:root[data-theme="dark"] { --sticky: #6DB0FF; --sticky-ink: #06214A; --sticky-sub: #123A70; }
 .hero.hero { background: none; background-color: transparent; box-shadow: none; padding: 6px 4px 0; margin: 4px 0 0; color: var(--text); overflow: visible; }
 .hero.hero::after { content: none; }
 .hero.hero h2 { color: var(--text); font-size: 23px; font-weight: 600; line-height: 1.2; letter-spacing: -.015em; }
@@ -485,7 +486,7 @@ h1, h2, h3, .topbar h1, .hero h2, .kpi .v, .ring .label, .welcome h2, .empty h2,
 .seg button { flex: 1; min-height: 46px; border-radius: 23px; background-color: var(--surface-2); box-shadow: none; font-weight: 600; }
 .seg button[aria-pressed="true"] { background-color: var(--text); color: var(--bg); box-shadow: none; }
 .seg button.p1[aria-pressed="true"], .seg button[data-p="1"][aria-pressed="true"] { background-color: #C2362A; color: #fff; }
-.drawer .quick-dates button { min-height: 44px; border-radius: 22px; border: 0; background-color: var(--accent-soft); color: #0A5F4A; font-weight: 600; }
+.drawer .quick-dates button { min-height: 44px; border-radius: 22px; border: 0; background-color: var(--accent-soft); color: var(--accent-hover); font-weight: 600; }
 :root[data-theme="dark"] .drawer .quick-dates button { color: var(--accent); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .drawer .quick-dates button { color: var(--accent); } }
 .drawer summary { min-height: 44px; border-radius: 22px; }
@@ -506,3 +507,13 @@ h1, h2, h3, .topbar h1, .hero h2, .kpi .v, .ring .label, .welcome h2, .empty h2,
 /* Terlambat: komposisi berbeda (kartu bernuansa merah lembut) agar grup yang mendesak tampak lain dari grup biasa */
 .group-head.overdue + .card { background-color: var(--surface); background-color: color-mix(in srgb, var(--danger-soft) 45%, var(--surface)); }
 .filters .tabs .qchip, .qchip { border-radius: var(--r-ctl); }
+
+/* ---------- 0.46: tema mengikuti logo (navy #0B2A5B + biru #1E78E6; gelap: putih + #6DB0FF) ----------
+ * Alasan palet (R-29): dua inti (navy, biru logo) + netral; kuning sticky dibuang agar tidak ada aksen kedua. Kartu "Berikutnya" jadi navy:
+ * satu titik fokus kontras tinggi di tiap layar. Warna prioritas (merah/jingga) tetap karena bermakna status, bukan dekorasi. */
+.logo-mark .lg-t { fill: var(--logo-t); }
+.logo-mark .lg-c { fill: var(--logo-c); }
+.brand-mark { width: auto; height: auto; background: transparent; border-radius: 0; color: inherit; display: flex; align-items: center; }
+.brand { color: var(--text); letter-spacing: -.03em; }
+.welcome .welcome-logo { display: flex; justify-content: center; margin: 4px 0 14px; }
+.empty svg.logo-mark, .welcome svg.logo-mark { width: 112px; height: auto; padding: 0; border-radius: 0; background: none; stroke-width: 0; }

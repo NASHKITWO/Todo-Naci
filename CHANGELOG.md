@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.46.0] - 2026-11-11
+
+### Identitas: logo baru dan tema mengikuti logo
+- Logo Tuntas Harian (huruf T miring dengan centang biru) dipakai di sidebar, layar sambutan, favicon, ikon peluncur adaptif, ikon lama, ikon bulat, ikon monokrom dan splash Android. Berkas sumber: `assets/logo.svg` (terang) dan `assets/logo-reversed.svg` (latar gelap).
+- Palet mengikuti logo: navy `#0B2A5B` dan biru `#1E78E6` (teks/tombol memakai `#1A6BD0` agar lolos kontras AA). Mode gelap memakai versi reversed: putih dan `#6DB0FF` di atas navy gelap. Warna prioritas tetap merah/jingga karena bermakna status.
+- Kartu "Berikutnya" jadi navy (gelap: biru muda); kuning sticky dibuang agar palet tidak punya aksen kedua.
+- Warna aksen bawaan: "Biru logo". Hijau daun tetap ada di pilihan aksen.
+- Ikon Android digambar ulang dari poligon logo asli; latar navy `#0B2A5B`; warna ikon notifikasi `#1E78E6`.
+
 ## [0.45.0] - 2026-11-11
 
 ### Desain: bentuk berjenjang (kurang generik)

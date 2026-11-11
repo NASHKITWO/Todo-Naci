@@ -5,6 +5,8 @@
 /* ---- aksen warna (terang lalu gelap) ---- */
 /* indigo = bawaan (token di 10-dasar.css) */
 /* teal = bawaan (token di 10-dasar.css) */
+:root[data-accent="teal"] { --accent: #0a7f66; --accent-hover: #086a55; --accent-soft: #dcf5ee; --on-accent: #fff; }
+:root[data-theme="dark"][data-accent="teal"] { --accent: #4fd8b4; --accent-hover: #7ae3c5; --accent-soft: #11332b; --on-accent: #04211a; }
 :root[data-accent="indigo"] { --accent: #3d5afe; --accent-hover: #2f47d6; --accent-soft: #e8ecff; --on-accent: #fff; }
 :root[data-accent="rose"]  { --accent: #d42d41; --accent-hover: #b3243a; --accent-soft: #ffe6e9; --on-accent: #fff; }
 :root[data-accent="amber"] { --accent: #b45309; --accent-hover: #92420a; --accent-soft: #fdecd6; --on-accent: #fff; }

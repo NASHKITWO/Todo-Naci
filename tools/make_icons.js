@@ -1,38 +1,34 @@
 /* Tuntas Harian - Hak Cipta (c) 2026 Muhammad Ikhsan. SPDX-License-Identifier: GPL-3.0-or-later. Program ini perangkat lunak bebas di bawah GNU GPL v3 atau yang lebih baru, TANPA JAMINAN; lihat LICENSE dan NOTICE. */
 'use strict';
 /* Ikon & splash (PNG RGBA) tanpa dependensi.
- * Rancangan: latar biru sampul rata, matahari putih (cincin + 8 sinar) dengan tanda centang merah-jingga (tinta guru) di tengahnya. Semua koordinat memakai satuan kanvas 0..1 (kanvas ikon adaptif 108dp);
- * glyph berada di dalam zona aman (lingkaran berjari-jari ≈0,306 dari pusat). */
+ * Rancangan: logo Tuntas Harian (huruf T miring + centang) versi untuk latar gelap (putih + biru muda) di atas navy rata.
+ * Bentuk logo = poligon yang sama dengan assets/logo.svg (viewBox 256). Koordinat sampel memakai satuan kanvas 0..1 (ikon adaptif 108dp);
+ * logo dipusatkan dan diskalakan agar seluruhnya di dalam zona aman (lingkaran berjari-jari ≈0,306 dari pusat). */
 const zlib = require('zlib');
 
-const C1 = [0x1b, 0x2f, 0x66], C2 = [0x1b, 0x2f, 0x66]; // latar rata: biru sampul buku tulis
-const WHITE = [255, 255, 255], AMBER = [0xff, 0x6f, 0x59];
+const C1 = [0x0b, 0x2a, 0x5b], C2 = [0x0b, 0x2a, 0x5b]; // latar rata: navy logo
+const WHITE = [255, 255, 255], BLUE = [0x6d, 0xb0, 0xff];
 
-// Logo "Tuntas Harian": matahari (cincin + 8 sinar, putih) dengan tanda centang merah-jingga (tinta guru) di tengahnya = tugas hari ini tuntas.
-const RING = { r: 0.19, half: 0.017 };
-const RAYS = { n: 8, r0: 0.235, r1: 0.287, half: 0.018 };
-const CHECK = { pts: [[0.425, 0.515], [0.48, 0.575], [0.585, 0.435]], half: 0.032 };
+const POLY_CHECK = [[78.1, 178.0], [190.0, 79.9], [240.0, 79.9], [90.1, 211.4], [73.4, 211.4]];
+const POLY_T = [[[62.4, 79.9], [102.7, 44.6], [79.3, 211.4], [43.9, 211.4]], [[21.0, 95.6], [119.1, 95.6], [114.1, 130.9], [16.0, 130.9]]];
+const SCALE = 0.0023; // satuan kanvas per satuan logo (lebar logo 224 -> ~0,52 kanvas)
+const CX = 128, CY = 128; // pusat kotak logo 256 (pusat visual logo: x 16..240, y 44..212)
+const toLogo = (u, v) => [(u - 0.5) / SCALE + CX, (v - 0.5) / SCALE + CY];
 
-function distToSegment(px, py, ax, ay, bx, by) {
-  const dx = bx - ax, dy = by - ay;
-  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)));
-  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
-}
-const distToCheck = (u, v) => Math.min(
-  distToSegment(u, v, CHECK.pts[0][0], CHECK.pts[0][1], CHECK.pts[1][0], CHECK.pts[1][1]),
-  distToSegment(u, v, CHECK.pts[1][0], CHECK.pts[1][1], CHECK.pts[2][0], CHECK.pts[2][1]));
-
-/* Glyph di titik (u,v): 'ring' | 'ray' | 'check' | null */
-function glyph(u, v) {
-  if (distToCheck(u, v) < CHECK.half) return 'check';
-  const dx = u - 0.5, dy = v - 0.5, r = Math.hypot(dx, dy);
-  if (Math.abs(r - RING.r) < RING.half) return 'ring';
-  if (r >= RAYS.r0 && r <= RAYS.r1) {
-    const step = Math.PI * 2 / RAYS.n;
-    const a = Math.atan2(dy, dx);
-    const d = Math.abs(((a % step) + step * 1.5) % step - step / 2); // sudut ke sinar terdekat
-    if (r * Math.sin(Math.min(d, Math.PI / 2)) < RAYS.half) return 'ray';
+function inPoly(x, y, poly) { // sinar horizontal
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
   }
+  return inside;
+}
+
+/* Glyph di titik (u,v): 'check' | 'letter' | null */
+function glyph(u, v) {
+  const [x, y] = toLogo(u, v);
+  if (inPoly(x, y, POLY_CHECK)) return 'check';
+  if (POLY_T.some(p => inPoly(x, y, p))) return 'letter';
   return null;
 }
 
@@ -42,7 +38,7 @@ const gradient = t => [0, 1, 2].map(i => C1[i] + (C2[i] - C1[i]) * t);
 function sample(kind, u, v) {
   switch (kind) {
     case 'background': { const t = (u + v) / 2; return gradient(t).concat(1); }
-    case 'foreground': { const g = glyph(u, v); return g ? (g === 'check' ? AMBER : WHITE).concat(1) : [0, 0, 0, 0]; }
+    case 'foreground': { const g = glyph(u, v); return g ? (g === 'check' ? BLUE : WHITE).concat(1) : [0, 0, 0, 0]; }
     case 'monochrome': return glyph(u, v) ? [255, 255, 255, 1] : [0, 0, 0, 0];
     default: throw new Error('jenis tidak dikenal: ' + kind);
   }
@@ -115,4 +111,4 @@ function icon(kind, size, ss) {
   return encode(size, size, rasterize(size, size, q, fn));
 }
 
-module.exports = { icon, sample, glyph, CHECK, RING, RAYS };
+module.exports = { icon, sample, glyph };

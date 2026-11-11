@@ -124,3 +124,14 @@ function scene(done) {
   );
   return svg;
 }
+
+/* Logo Tuntas Harian: huruf T bergaris miring dengan centang biru. Warna mengikuti tema (--logo-t, --logo-c), jadi versi terang dan gelap
+ * memakai berkas yang sama dengan assets/logo.svg dan assets/logo-reversed.svg. Dekoratif; nama merek ada di teks sebelahnya. */
+function logoMark(width) {
+  const mk = (n, a) => { const e = document.createElementNS(SVG_NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const svg = mk('svg', { viewBox: '12 40 232 176', width: width || 40, height: Math.round((width || 40) * 176 / 232), class: 'logo-mark', 'aria-hidden': 'true', focusable: 'false' });
+  svg.append(
+    mk('path', { class: 'lg-c', d: 'M78.1 178.0L190.0 79.9L240.0 79.9L90.1 211.4L73.4 211.4Z' }),
+    mk('path', { class: 'lg-t', d: 'M62.4 79.9L102.7 44.6L79.3 211.4L43.9 211.4ZM21.0 95.6L119.1 95.6L114.1 130.9L16.0 130.9Z' }));
+  return svg;
+}

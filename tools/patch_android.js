@@ -111,14 +111,14 @@ const ADAPTIVE = `<?xml version="1.0" encoding="utf-8"?>
 `;
 const GRADIENT = `<?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="#1B2F66" />
+    <solid android:color="#0B2A5B" />
 </shape>
 `;
 const SPLASH = `<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#1B2F66" />
+            <solid android:color="#0B2A5B" />
         </shape>
     </item>
     <item>
@@ -148,7 +148,7 @@ function writeIcons(resDir) {
   for (const n of ['ic_launcher.xml', 'ic_launcher_round.xml']) write(path.join(resDir, 'mipmap-anydpi-v26', n), ADAPTIVE);
   // warna latar lama yang dirujuk template Capacitor: samakan dengan warna awal gradien
   const colors = path.join(resDir, 'values', 'ic_launcher_background.xml');
-  if (fs.existsSync(colors)) write(colors, '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#1B2F66</color>\n</resources>\n');
+  if (fs.existsSync(colors)) write(colors, '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#0B2A5B</color>\n</resources>\n');
 }
 
 /* Splash: satu layer-list (gradien + glyph di tengah) menggantikan splash.png bawaan di semua kualifikasi. */

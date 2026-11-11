@@ -1,5 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Tuntas Harian">
-<rect width="1024" height="1024" rx="225" fill="#1b2f66"/>
-<g fill="none" stroke="#fff" stroke-width="35"><circle cx="512" cy="512" r="194.6"/><g stroke-width="36" stroke-linecap="butt"><line x1="752.6" y1="512.0" x2="805.9" y2="512.0"/><line x1="682.2" y1="682.2" x2="719.8" y2="719.8"/><line x1="512.0" y1="752.6" x2="512.0" y2="805.9"/><line x1="341.8" y1="682.2" x2="304.2" y2="719.8"/><line x1="271.4" y1="512.0" x2="218.1" y2="512.0"/><line x1="341.8" y1="341.8" x2="304.2" y2="304.2"/><line x1="512.0" y1="271.4" x2="512.0" y2="218.1"/><line x1="682.2" y1="341.8" x2="719.8" y2="304.2"/></g></g>
-<polyline points="435,527 492,589 599,445" fill="none" stroke="#ff6f59" stroke-width="66" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="t"><title id="t">Tuntas Harian, logo</title><path id="centang" fill="#1E78E6" d="M78.1 178.0L190.0 79.9L240.0 79.9L90.1 211.4L73.4 211.4Z"/><path id="t" fill="#0B2A5B" d="M62.4 79.9L102.7 44.6L79.3 211.4L43.9 211.4ZM21.0 95.6L119.1 95.6L114.1 130.9L16.0 130.9Z"/></svg>

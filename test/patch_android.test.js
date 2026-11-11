@@ -130,7 +130,7 @@ test('proyek palsu: izin, versi, ikon RGBA, ikon adaptif, splash, dan widget', (
     const xml = fs.readFileSync(path.join(res, 'mipmap-anydpi-v26', n), 'utf8');
     assert.ok(xml.includes('<monochrome') && xml.includes('@mipmap/ic_launcher_foreground'));
   }
-  assert.ok(fs.readFileSync(path.join(res, 'values', 'ic_launcher_background.xml'), 'utf8').includes('#1B2F66'));
+  assert.ok(fs.readFileSync(path.join(res, 'values', 'ic_launcher_background.xml'), 'utf8').includes('#0B2A5B'));
   // splash: png lama hilang di semua kualifikasi, diganti satu layer-list + glyph
   for (const d of ['drawable', 'drawable-land-hdpi', 'drawable-port-xhdpi']) assert.ok(!fs.existsSync(path.join(res, d, 'splash.png')), d);
   assert.ok(fs.readFileSync(path.join(res, 'drawable', 'splash.xml'), 'utf8').includes('@drawable/splash_glyph'));
