@@ -561,3 +561,24 @@ body { background-color: var(--bg); }
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { body::before { background: var(--bg); } }
 @media (prefers-reduced-transparency: reduce) { body::before { background: var(--bg); } .group .card, .quick, .drawer, .sidebar { -webkit-backdrop-filter: none; backdrop-filter: none; background-color: var(--surface); } }
+
+/* ---------- 0.49: lembar kalender harian ----------
+ * Satu motif dari logo (kalender sobek) dipakai di tajuk: tanggal hari ini di lembar miring dengan tepi bawah sobek.
+ * Alasan (R-22): hubungannya langsung dengan "Harian"; hanya tampil di tampilan Hari ini, di layar lain tajuk polos. */
+.leaf { flex: none; position: relative; width: 54px; height: 60px; transform: rotate(-5deg); filter: drop-shadow(0 6px 10px rgba(11, 42, 91, .22)); transition: transform .35s cubic-bezier(.3, 1.5, .5, 1); }
+.leaf:hover { transform: rotate(2deg) translateY(-1px); }
+.leaf[hidden] { display: none; }
+.leaf::before { content: ""; position: absolute; inset: 0; background: linear-gradient(165deg, #fff, #dbe9fb); border-radius: 12px 12px 0 0;
+  clip-path: polygon(0 0, 100% 0, 100% 90%, 88% 100%, 76% 91%, 64% 100%, 52% 92%, 40% 100%, 28% 91%, 16% 100%, 8% 92%, 0 98%); }
+.leaf .lf-m { position: absolute; z-index: 1; left: 0; right: 0; top: 0; height: 19px; border-radius: 12px 12px 0 0; background: #0B2A5B; color: #fff; font: 700 11px/19px var(--font); text-align: center; letter-spacing: .04em; text-transform: lowercase; }
+.leaf .lf-d { position: absolute; z-index: 1; left: 0; right: 0; top: 20px; text-align: center; color: #0B2A5B; font: 800 28px/36px var(--display, var(--font)); letter-spacing: -.04em; }
+:root[data-theme="dark"] .leaf::before { background: linear-gradient(165deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .08)); }
+:root[data-theme="dark"] .leaf .lf-d { color: #fff; }
+:root[data-theme="dark"] .leaf .lf-m { background: #1A6BD0; }
+@media (min-width: 900px) { .leaf { width: 60px; height: 66px; } .leaf .lf-d { font-size: 31px; } }
+
+/* sentuhan tekan: kontrol terasa fisik, bukan hanya berubah warna */
+.row-body:active { transform: scale(.985); }
+.btn:active, .icon-btn:active, .qchip:active { transform: scale(.94); }
+.btn, .icon-btn, .qchip { transition: transform .18s cubic-bezier(.3, 1.6, .5, 1), background .15s, border-color .15s, box-shadow .15s; }
+@media (prefers-reduced-motion: reduce) { .leaf, .btn, .icon-btn, .qchip { transition: none; } .leaf:hover { transform: rotate(-5deg); } }

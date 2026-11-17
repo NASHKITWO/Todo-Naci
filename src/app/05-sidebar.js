@@ -136,6 +136,14 @@ function renderHeader() {
   else if (ui.view === 'insights' && !ui.project && !ui.tag) sub = T('Ringkasan produktivitasmu');
   else if (ui.view === 'trash' && !ui.project && !ui.tag) sub = T('Dihapus otomatis setelah 30 hari');
   else if (ui.project || ui.tag) sub = T(ui.view === 'done' ? 'Selesai' : 'Tugas aktif');
+  const leaf = $('#leaf');
+  if (ui.view === 'today' && !ui.project && !ui.tag && state.today) { // lembar kalender harian: tanggal hari ini
+    const [y, m, d] = state.today.split('-').map(Number);
+    $('.lf-m', leaf).textContent = new Date(y, m - 1, d).toLocaleDateString(document.documentElement.lang || 'id', { month: 'short' }).replace('.', '');
+    $('.lf-d', leaf).textContent = String(d);
+    leaf.hidden = false;
+    sub = new Date(y, m - 1, d).toLocaleDateString(document.documentElement.lang || 'id', { weekday: 'long' }); // tanggal sudah ada di lembar
+  } else leaf.hidden = true;
   $('#view-title').textContent = title;
   $('#view-sub').textContent = sub;
   $('#rename-btn').hidden = !ui.project;

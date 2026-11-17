@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.49.0] - 2026-11-18
+
+### Lembar kalender harian
+- Tajuk "Hari ini" kini punya lembar kalender kecil yang miring: bulan di pita navy, tanggal besar di bawahnya, tepi bawah sobek. Motifnya sama dengan logo. Lembar hanya muncul di tampilan Hari ini; teks di bawah judul menjadi nama hari karena tanggalnya sudah ada di lembar.
+- Kontrol terasa fisik: tombol, tombol ikon, chip, dan baris tugas mengecil sedikit saat ditekan lalu memantul kembali. Semua dimatikan saat pengaturan "kurangi gerak" aktif.
+
 ## [0.48.0] - 2026-11-18
 
 ### Logo baru: kalender sobek kaca
