@@ -511,8 +511,9 @@ h1, h2, h3, .topbar h1, .hero h2, .kpi .v, .ring .label, .welcome h2, .empty h2,
 /* ---------- 0.46: tema mengikuti logo (navy #0B2A5B + biru #1E78E6; gelap: putih + #6DB0FF) ----------
  * Alasan palet (R-29): dua inti (navy, biru logo) + netral; kuning sticky dibuang agar tidak ada aksen kedua. Kartu "Berikutnya" jadi navy:
  * satu titik fokus kontras tinggi di tiap layar. Warna prioritas (merah/jingga) tetap karena bermakna status, bukan dekorasi. */
-.logo-mark .lg-t { fill: var(--logo-t); }
-.logo-mark .lg-c { fill: var(--logo-c); }
+.logo-mark .lg-d { display: none; }
+:root[data-theme="dark"] .logo-mark .lg-l { display: none; }
+:root[data-theme="dark"] .logo-mark .lg-d { display: inline; }
 .brand-mark { width: auto; height: auto; background: transparent; border-radius: 0; color: inherit; display: flex; align-items: center; }
 .brand { color: var(--text); letter-spacing: -.03em; }
 .welcome .welcome-logo { display: flex; justify-content: center; margin: 4px 0 14px; }

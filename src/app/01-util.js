@@ -127,11 +127,30 @@ function scene(done) {
 
 /* Logo Tuntas Harian: huruf T bergaris miring dengan centang biru. Warna mengikuti tema (--logo-t, --logo-c), jadi versi terang dan gelap
  * memakai berkas yang sama dengan assets/logo.svg dan assets/logo-reversed.svg. Dekoratif; nama merek ada di teks sebelahnya. */
+/* Logo: kalender sobek kaca. Bentuknya sama dengan tools/render_icons.js (diperiksa oleh test/logo.test.js).
+ * Dua varian (terang/gelap) ada di satu svg; CSS menampilkan satu sesuai tema. Id gradien dibuat unik per salinan. */
+let logoSeq = 0;
 function logoMark(width) {
-  const mk = (n, a) => { const e = document.createElementNS(SVG_NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
-  const svg = mk('svg', { viewBox: '12 40 232 176', width: width || 40, height: Math.round((width || 40) * 176 / 232), class: 'logo-mark', 'aria-hidden': 'true', focusable: 'false' });
-  svg.append(
-    mk('path', { class: 'lg-c', d: 'M78.1 178.0L190.0 79.9L240.0 79.9L90.1 211.4L73.4 211.4Z' }),
-    mk('path', { class: 'lg-t', d: 'M62.4 79.9L102.7 44.6L79.3 211.4L43.9 211.4ZM21.0 95.6L119.1 95.6L114.1 130.9L16.0 130.9Z' }));
-  return svg;
+  const id = 'lg' + (++logoSeq) + '-';
+  const FRONT = 'M26 30C26 16 36 10 50 10H80C94 10 102 20 100 34C98 50 104 66 99 82C97 92 93 98 86 99L79 93L71 102L63 94L55 101L47 95L38 100C28 100 24 92 24 80C23 62 26 46 26 30Z';
+  const T_BAR = 'M35 45C49 40 67 40 85 43C88 44 87 51 84 52C68 51 52 51 38 54C33 55 31 47 35 45Z';
+  const T_STEM = 'M53 48C58 47 65 47 68 49C66 62 66 74 64 87C63 91 56 91 55 87C55 75 54 61 53 48Z';
+  const SHINE = 'M33 24C40 15 62 13 78 15';
+  const variant = (dark, k) => {
+    const g1 = dark ? '.34' : '.8', g2 = dark ? '.08' : '.3', mid = dark ? '#FFFFFF' : '#7FA6D9', t = dark ? '#FFFFFF' : '#0B2A5B';
+    const q = n => id + k + n;
+    return `<g class="${dark ? 'lg-d' : 'lg-l'}"><defs>
+<linearGradient id="${q('b1')}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8CC0FF"/><stop offset="1" stop-color="#1E78E6"/></linearGradient>
+<linearGradient id="${q('b2')}" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#0B2A5B"/><stop offset="1" stop-color="#3B8DEB"/></linearGradient>
+<linearGradient id="${q('gl')}" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="${g1}"/><stop offset="1" stop-color="#fff" stop-opacity="${g2}"/></linearGradient>
+<linearGradient id="${q('ed')}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".55" stop-color="${mid}" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity=".8"/></linearGradient></defs>
+<g transform="rotate(-13 60 108)"><rect x="24" y="8" width="72" height="100" rx="20" fill="url(#${q('b2')})"/></g>
+<g transform="rotate(-6 60 108)"><rect x="24" y="8" width="72" height="100" rx="20" fill="url(#${q('b1')})"/></g>
+<g transform="translate(-2 2)"><path d="${FRONT}" fill="url(#${q('gl')})" stroke="url(#${q('ed')})" stroke-width="2.2" stroke-linejoin="round"/>
+<path d="${SHINE}" stroke="#fff" stroke-opacity=".7" stroke-width="3" stroke-linecap="round" fill="none"/>
+<path d="${T_BAR}" fill="${t}"/><path d="${T_STEM}" fill="${t}"/></g></g>`;
+  };
+  const w = width || 40;
+  const doc = new DOMParser().parseFromString(`<svg xmlns="${SVG_NS}" viewBox="4 2 106 110" width="${w}" height="${Math.round(w * 110 / 106)}" class="logo-mark" aria-hidden="true" focusable="false">${variant(false, 'l')}${variant(true, 'd')}</svg>`, 'image/svg+xml');
+  return document.importNode(doc.documentElement, true);
 }

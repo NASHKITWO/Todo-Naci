@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.48.0] - 2026-11-18
+
+### Logo baru: kalender sobek kaca
+- Logo diganti: lembar kalender harian dari kaca dengan tepi bawah sobek, dua lembar biru di belakangnya, dan huruf T bergaya tulis tangan. Satu bentuk dipakai di sidebar, layar sambutan, favicon, ikon peluncur adaptif, ikon lama, ikon bulat, ikon monokrom (siluet dengan T berlubang) dan splash Android.
+- Varian terang dan gelap berada di satu SVG dan ditukar lewat CSS sesuai tema; id gradien dibuat unik per salinan.
+- Ikon Android sekarang berupa PNG yang dirender dari logo (`node tools/render_icons.js`, butuh Playwright) dan dikomit di `assets/android/`. `tools/make_icons.js` hanya membaca PNG itu, jadi CI tidak perlu Playwright dan rasterisasi poligon lama dihapus.
+- Berkas sumber: `assets/logo.svg`, `assets/logo-reversed.svg`, `assets/logo-1024.png`. `test/logo.test.js` memastikan bentuk di app sama dengan sumber ikon dan semua ukuran PNG tersedia.
+
 ## [0.47.0] - 2026-11-17
 
 ### Tampilan kaca (glassmorphism)
