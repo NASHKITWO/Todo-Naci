@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.47.0] - 2026-11-17
+
+### Tampilan kaca (glassmorphism)
+- Latar tetap berisi cahaya biru lembut (lapisan fixed, tidak digambar ulang saat gulir) sebagai bahan yang diburamkan kaca.
+- Kartu tugas, bar tambah, sheet detail, sidebar, tombol ikon, filter, dan toast memakai kaca: alas translusen 58-80%, blur 18-26px, tepi terang, bayangan dalam. Baris di dalam kartu tidak diburamkan agar gulir tetap ringan.
+- Alas kaca cukup pekat supaya teks tetap lolos kontras AA; audit aksesibilitas hijau di terang dan gelap.
+- Tanpa dukungan `backdrop-filter` atau dengan pengaturan "kurangi transparansi", kembali ke alas padat.
+
 ## [0.46.0] - 2026-11-11
 
 ### Identitas: logo baru dan tema mengikuti logo

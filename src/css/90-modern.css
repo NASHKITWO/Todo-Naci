@@ -517,3 +517,46 @@ h1, h2, h3, .topbar h1, .hero h2, .kpi .v, .ring .label, .welcome h2, .empty h2,
 .brand { color: var(--text); letter-spacing: -.03em; }
 .welcome .welcome-logo { display: flex; justify-content: center; margin: 4px 0 14px; }
 .empty svg.logo-mark, .welcome svg.logo-mark { width: 112px; height: auto; padding: 0; border-radius: 0; background: none; stroke-width: 0; }
+
+/* ---------- 0.47: tampilan kaca (glassmorphism), sesuai permintaan ----------
+ * Kaca butuh sesuatu di belakangnya: latar tetap berisi cahaya biru lembut (pseudo-elemen fixed, tidak menggambar ulang saat gulir).
+ * Kartu, bar tambah, sheet, sidebar, dan tombol ikon memakai kaca; baris di dalam kartu tidak (agar gulir tetap ringan).
+ * Alasan kontras: alas kaca cukup pekat (62-72%) sehingga teks tetap >= 4.5:1; tanpa dukungan backdrop-filter, kembali ke alas padat. */
+:root {
+  --glass: rgba(255, 255, 255, .66); --glass-strong: rgba(255, 255, 255, .8);
+  --glass-edge: rgba(255, 255, 255, .75); --glass-line: rgba(11, 42, 91, .1);
+  --glass-shadow: 0 8px 28px -10px rgba(11, 42, 91, .28), inset 0 1px 0 rgba(255, 255, 255, .85);
+  --glass-blur: blur(18px) saturate(165%);
+}
+:root[data-theme="dark"] {
+  --glass: rgba(18, 40, 80, .58); --glass-strong: rgba(14, 33, 66, .78);
+  --glass-edge: rgba(255, 255, 255, .14); --glass-line: rgba(255, 255, 255, .1);
+  --glass-shadow: 0 10px 30px -12px rgba(0, 0, 0, .7), inset 0 1px 0 rgba(255, 255, 255, .12);
+}
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(60vmax 50vmax at 8% -6%, rgba(30, 120, 230, .34), transparent 60%),
+    radial-gradient(50vmax 42vmax at 100% 12%, rgba(109, 176, 255, .38), transparent 62%),
+    radial-gradient(55vmax 45vmax at 70% 108%, rgba(11, 42, 91, .2), transparent 60%),
+    linear-gradient(180deg, #e8f1fd, #f4f8fe); }
+:root[data-theme="dark"] body::before { background:
+    radial-gradient(60vmax 50vmax at 8% -6%, rgba(30, 120, 230, .5), transparent 60%),
+    radial-gradient(50vmax 42vmax at 100% 14%, rgba(109, 176, 255, .22), transparent 62%),
+    radial-gradient(55vmax 45vmax at 65% 108%, rgba(30, 120, 230, .3), transparent 60%),
+    linear-gradient(180deg, #061226, #0a1c3a); }
+body { background-color: var(--bg); }
+.app, .main { background: transparent; }
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .group .card, .side-card, .sidebar, .quick, .toast, .login-card, .icon-btn, .filters select, .qchip:not(.on), .hero .hero-meta button#hero-tomorrow {
+    -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
+  .group .card, .side-card, .sidebar, .quick, .toast, .login-card, .icon-btn, .filters select, .qchip:not(.on) {
+    background-color: var(--glass); box-shadow: var(--glass-shadow); border: 1px solid var(--glass-edge); }
+  .sidebar { background-color: var(--glass-strong); border-right: 1px solid var(--glass-edge); box-shadow: none; }
+  .quick { background-color: var(--glass-strong); }
+  .drawer { -webkit-backdrop-filter: blur(26px) saturate(170%); backdrop-filter: blur(26px) saturate(170%); background-color: var(--glass-strong); border: 1px solid var(--glass-edge); box-shadow: var(--glass-shadow); }
+  .group-head.overdue + .card { background-color: color-mix(in srgb, rgba(220, 60, 60, .16) 100%, var(--glass)); }
+  .row + .row::before { background: var(--glass-line); }
+  .hero .hero-meta button#hero-tomorrow { background-color: var(--glass); box-shadow: var(--glass-shadow); }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { body::before { background: var(--bg); } }
+@media (prefers-reduced-transparency: reduce) { body::before { background: var(--bg); } .group .card, .quick, .drawer, .sidebar { -webkit-backdrop-filter: none; backdrop-filter: none; background-color: var(--surface); } }
