@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.50.0] - 2026-11-23
+
+### Kaca berlapis
+- Latar kini punya tiga cahaya biru yang bergeser sangat pelan di belakang kaca (hanya `transform`, tanpa menggambar ulang; mati saat "kurangi gerak").
+- Tepi kartu, bar tambah, kartu samping, dan sheet detail menangkap cahaya: terang di sudut kiri atas, redup di tengah, terang lagi di kanan bawah. Dibuat dengan lapisan mask terpisah supaya isi kartu tidak ikut tembus pandang.
+- Kedalaman: bayangan berlapis, kilau tipis di sisi atas, blur 22px (sheet 32px) dengan saturasi dan kecerahan sedikit dinaikkan. Kartu "Berikutnya" jadi kaca berwarna yang menyala di tepinya; tombol utama diberi kilau.
+- Dimatikan bila perangkat meminta "kurangi transparansi".
+
+### Perbaikan
+- Judul "Hari ini" terpotong jadi dua baris di HP sejak lembar kalender 0.49.0: judul tidak lagi turun baris dan lembar mengecil di layar sempit.
+- Prioritas "Sedang" dan "Rendah" yang terpilih kini berisi penuh (jingga tua dan biru) dengan teks putih; sebelumnya teks jingga di atas pil putih terbaca lemah di mode gelap.
+- Teks kecil di kartu "Berikutnya" mode gelap dinaikkan kontrasnya agar lolos AA.
+- Tint kartu terlambat di mode gelap tidak lagi keunguan.
+
 ## [0.49.0] - 2026-11-18
 
 ### Lembar kalender harian

@@ -582,3 +582,60 @@ body { background-color: var(--bg); }
 .btn:active, .icon-btn:active, .qchip:active { transform: scale(.94); }
 .btn, .icon-btn, .qchip { transition: transform .18s cubic-bezier(.3, 1.6, .5, 1), background .15s, border-color .15s, box-shadow .15s; }
 @media (prefers-reduced-motion: reduce) { .leaf, .btn, .icon-btn, .qchip { transition: none; } .leaf:hover { transform: rotate(-5deg); } }
+
+/* ---------- 0.50: kaca berlapis ----------
+ * Kaca terbaca sebagai kaca karena tiga hal, bukan blur saja: (1) latar punya cahaya yang bergerak pelan di belakangnya,
+ * (2) tepi menangkap cahaya (terang di sudut kiri atas, redup di tengah, terang lagi di kanan bawah), (3) kedalaman:
+ * bayangan berlapis dan kilau tipis di sisi atas. Cahaya latar hanya menganimasikan transform (tanpa menggambar ulang) dan mati saat "kurangi gerak". */
+:root {
+  --rim: linear-gradient(135deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .12) 38%, rgba(255, 255, 255, .06) 62%, rgba(255, 255, 255, .7));
+  --glass-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset, 0 14px 30px -14px rgba(11, 42, 91, .38), 0 2px 6px -2px rgba(11, 42, 91, .12);
+  --glow-a: rgba(30, 120, 230, .42); --glow-b: rgba(92, 200, 255, .38); --glow-c: rgba(109, 176, 255, .32);
+}
+:root[data-theme="dark"] {
+  --rim: linear-gradient(135deg, rgba(255, 255, 255, .4), rgba(255, 255, 255, .05) 38%, rgba(255, 255, 255, .02) 62%, rgba(109, 176, 255, .3));
+  --glass-shadow: 0 1px 0 rgba(255, 255, 255, .1) inset, 0 18px 34px -14px rgba(0, 0, 0, .75), 0 2px 8px -2px rgba(0, 0, 0, .4);
+  --glow-a: rgba(30, 120, 230, .55); --glow-b: rgba(40, 150, 220, .32); --glow-c: rgba(109, 176, 255, .22);
+}
+body::after { content: ""; position: fixed; inset: -25%; z-index: -1; pointer-events: none; will-change: transform;
+  background:
+    radial-gradient(34vmax 30vmax at 18% 22%, var(--glow-a), transparent 70%),
+    radial-gradient(30vmax 28vmax at 82% 38%, var(--glow-b), transparent 70%),
+    radial-gradient(36vmax 30vmax at 48% 86%, var(--glow-c), transparent 70%);
+  animation: glow-drift 36s ease-in-out infinite alternate; }
+@keyframes glow-drift { to { transform: translate3d(5%, 4%, 0) rotate(9deg) scale(1.1); } }
+
+/* tepi yang menangkap cahaya: lapisan terpisah (mask) agar isi kartu tidak ikut tembus pandang */
+.group .card::before, .quick::before, .side-card::before, .drawer::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.2px; pointer-events: none; z-index: 2;
+  background: var(--rim);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.quick { position: relative; }
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .group .card, .side-card, .quick, .sidebar, .toast, .icon-btn, .qchip:not(.on), .filters select {
+    -webkit-backdrop-filter: blur(22px) saturate(180%) brightness(1.04); backdrop-filter: blur(22px) saturate(180%) brightness(1.04);
+    box-shadow: var(--glass-shadow); border-color: transparent; }
+  .drawer { -webkit-backdrop-filter: blur(32px) saturate(190%); backdrop-filter: blur(32px) saturate(190%); box-shadow: var(--glass-shadow), 0 -20px 60px -20px rgba(11, 42, 91, .5); }
+  /* kartu "Berikutnya": kaca berwarna, menyala di tepinya */
+  .hero .hero-meta button#hero-next { background-color: rgba(11, 42, 91, .9); -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .28) inset, 0 18px 34px -14px rgba(30, 120, 230, .65), 0 0 0 1px rgba(255, 255, 255, .14); }
+  :root[data-theme="dark"] .hero .hero-meta button#hero-next { background-color: rgba(109, 176, 255, .92); box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset, 0 18px 34px -14px rgba(109, 176, 255, .55); }
+}
+/* tombol utama: kaca padat bercahaya, bukan blok datar */
+.btn.primary, .quick .btn.primary { background-image: linear-gradient(180deg, rgba(255, 255, 255, .28), rgba(255, 255, 255, 0) 55%); box-shadow: 0 1px 0 rgba(255, 255, 255, .45) inset, 0 8px 18px -8px rgba(30, 120, 230, .7); }
+.group .card .row + .row::before { opacity: .7; }
+/* judul "Hari ini" tidak boleh terpotong dua baris oleh lembar kalender */
+.topbar h1 { white-space: nowrap; }
+@media (max-width: 440px) { .leaf { width: 46px; height: 52px; } .leaf .lf-m { height: 16px; font-size: 10px; line-height: 16px; } .leaf .lf-d { top: 17px; font-size: 24px; line-height: 30px; } .topbar { gap: 8px; } .topbar h1 { font-size: 28px; } }
+@media (prefers-reduced-motion: reduce) { body::after { animation: none; } }
+@media (prefers-reduced-transparency: reduce) { body::after { display: none; } .group .card::before, .quick::before, .side-card::before, .drawer::after { display: none; } }
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .group-head.overdue + .card { background-color: color-mix(in srgb, rgba(224, 70, 60, .1) 100%, var(--glass)); }
+  :root[data-theme="dark"] .group-head.overdue + .card { background-color: color-mix(in srgb, rgba(255, 110, 90, .09) 100%, var(--glass)); }
+}
+/* prioritas terpilih: isi penuh berwarna, teks putih (sebelumnya teks jingga di atas pil putih terbaca lemah di mode gelap) */
+.seg button[aria-pressed="true"].p2, .seg button[data-p="2"][aria-pressed="true"] { background-color: #B45309; color: #fff; }
+.seg button[aria-pressed="true"].p3, .seg button[data-p="3"][aria-pressed="true"] { background-color: #1A6BD0; color: #fff; }
+:root[data-theme="dark"] { --sticky-sub: #082650; }
+:root[data-theme="dark"] .hero .hero-meta button#hero-next { background-color: rgba(109, 176, 255, .97); }
